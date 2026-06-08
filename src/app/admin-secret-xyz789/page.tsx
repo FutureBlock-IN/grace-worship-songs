@@ -2,13 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
 import type { FirebaseSong } from "@/types/firebase-song";
 
 import { Button } from "@/components/ui/button";
 import { AddMusicModal } from "@/components/admin/add-music-modal";
 import { MusicList } from "@/components/admin/music-list";
-import { getAllSongs } from "@/lib/firebase-queries";
+import { db } from "@/lib/firebase";
 
 export default function AdminPage() {
   const [songs, setSongs] = useState<FirebaseSong[]>([]);
@@ -17,23 +18,42 @@ export default function AdminPage() {
   const [selectedSong, setSelectedSong] = useState<FirebaseSong | null>(null);
 
   useEffect(() => {
-    console.log("[AdminPage] Component mounted, loading songs");
-    loadSongs();
-  }, []);
+    const songsQuery = query(
+      collection(db, "songs"),
+      orderBy("createdAt", "desc")
+    );
 
-  async function loadSongs() {
-    try {
-      console.log("[AdminPage] Loading songs from Firestore");
-      setLoading(true);
-      const data = await getAllSongs();
-      console.log("[AdminPage] Songs loaded:", data.length);
-      setSongs(data);
-    } catch (error) {
-      console.error("[AdminPage] Failed to load songs:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
+    const unsubscribe = onSnapshot(
+      songsQuery,
+      (snapshot) => {
+        setSongs(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            title: String(doc.data().title ?? ""),
+            lyrics: String(doc.data().lyrics ?? doc.data().teluguLyrics ?? ""),
+            transliteratedLyrics: String(
+              doc.data().transliteratedLyrics ?? doc.data().englishLyrics ?? ""
+            ),
+            imageUrl: String(doc.data().imageUrl ?? doc.data().coverImageUrl ?? "") || undefined,
+            audioUrl: String(doc.data().audioUrl ?? doc.data().audioFileUrl ?? "") || undefined,
+            createdAt:
+              typeof doc.data().createdAt === "object" &&
+              doc.data().createdAt !== null &&
+              typeof (doc.data().createdAt as any).toMillis === "function"
+                ? (doc.data().createdAt as any).toMillis()
+                : Date.now(),
+          }))
+        );
+        setLoading(false);
+      },
+      (error) => {
+        console.error("[AdminPage] Firestore snapshot failed:", error);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
 
   function handleAddMusic() {
     console.log("[AdminPage] Opening Add Music modal");
@@ -53,10 +73,9 @@ export default function AdminPage() {
     setSelectedSong(null);
   }
 
-  async function handleSongSaved() {
-    console.log("[AdminPage] Song saved, closing modal and reloading");
+  function handleSongSaved() {
+    console.log("[AdminPage] Song saved, closing modal");
     handleCloseModal();
-    await loadSongs();
   }
 
   return (
@@ -86,7 +105,9 @@ export default function AdminPage() {
         songs={songs}
         loading={loading}
         onEdit={handleEditSong}
-        onDelete={loadSongs}
+        onDelete={() => {
+          /* Real-time snapshot keeps songs current */
+        }}
       />
     </div>
   );

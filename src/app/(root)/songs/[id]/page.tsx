@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 import { SongDetailClient } from "@/components/music/song-detail-client";
 import { siteConfig } from "@/config/site";
 import { getSongById } from "@/lib/firebase-queries";
@@ -20,13 +22,16 @@ export async function generateMetadata({
   }
 
   return {
-    title: siteConfig.name,
-    description: `Listen to songs on ${siteConfig.name}`,
+    title: song.title,
+    description: `Listen to ${song.title} on ${siteConfig.name}`,
     openGraph: {
-      title: siteConfig.name,
-      description: siteConfig.description,
+      title: song.title,
+      description: `Listen to ${song.title} on ${siteConfig.name}`,
       url: `/songs/${id}`,
-      images: song.imageUrl ? { url: song.imageUrl, alt: song.title } : undefined,
+      siteName: siteConfig.name,
+      images: song.imageUrl
+        ? [{ url: song.imageUrl, alt: song.title }]
+        : [{ url: "/images/logo.png", alt: siteConfig.name }],
     },
   };
 }

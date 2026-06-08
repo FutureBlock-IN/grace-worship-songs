@@ -12,12 +12,15 @@ type FirebaseSongLyricsProps = {
   songTitle?: string;
 };
 
-function LyricsBlock({ content }: { content: string }) {
+function LyricsBlock({ content, language }: { content: string; language: "telugu" | "english" }) {
   if (!content.trim()) {
+    const message =
+      language === "telugu"
+        ? "📖 Telugu lyrics are not available for this song."
+        : "📖 English lyrics are not available for this song.";
+
     return (
-      <p className="text-center text-sm text-muted-foreground">
-        No lyrics available for this language.
-      </p>
+      <p className="text-center text-sm text-muted-foreground">{message}</p>
     );
   }
 
@@ -76,13 +79,13 @@ export function FirebaseSongLyrics({
 
         <TabsContent value="telugu" className="mt-0 focus-visible:outline-none">
           <div className="rounded-lg border border-border/60 bg-card/30 px-4 py-4 sm:px-5 sm:py-5">
-            <LyricsBlock content={telugu} />
+            <LyricsBlock content={telugu} language="telugu" />
           </div>
         </TabsContent>
 
         <TabsContent value="english" className="mt-0 focus-visible:outline-none">
           <div className="rounded-lg border border-border/60 bg-card/30 px-4 py-4 sm:px-5 sm:py-5">
-            <LyricsBlock content={english} />
+            <LyricsBlock content={english} language="english" />
           </div>
         </TabsContent>
       </Tabs>

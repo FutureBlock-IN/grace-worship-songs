@@ -9,9 +9,9 @@ const sections = [
   {
     title: "Introduction",
     paragraphs: [
-      'This Privacy Policy explains how Called for Purpose ("we," "us," or "our") collects, uses, stores, and protects information when you use the Called for Purpose application and related services (collectively, the "App").',
+      'This Privacy Policy explains how Grace Worship Songs ("we," "us," or "our") collects, uses, stores, and protects information when you use the Grace Worship Songs application and related services (collectively, the "App").',
       "By using the App, you agree to the collection and use of information in accordance with this Privacy Policy.",
-      "This policy applies to Called for Purpose and is reviewed periodically to keep it current and accurate.",
+      "This policy applies to Grace Worship Songs and is reviewed periodically to keep it current and accurate.",
     ],
   },
   {
@@ -117,7 +117,7 @@ const sections = [
     title: "Your Privacy Rights",
     paragraphs: [
       "Depending on your location, you may have rights to access, correct, delete, restrict, or object to the processing of your personal information, withdraw consent where applicable, or request a copy of your data.",
-      "To exercise any of these rights, contact us at privacy@calledforpurpose.org.",
+      "To exercise any of these rights, contact us at privacy@graceworshipsongs.org.",
     ],
   },
   {
@@ -148,8 +148,8 @@ const sections = [
     title: "Contact Us",
     paragraphs: [
       "If you have any questions, requests, or concerns about this Privacy Policy, you can contact us at:",
-      "Called for Purpose",
-      "Email: privacy@calledforpurpose.org",
+      "Grace Worship Songs",
+      "Email: privacy@graceworshipsongss.org",
       "Address: Hyderabad, Telangana, India",
     ],
   },
@@ -170,7 +170,7 @@ export default function PrivacyPage() {
             className="mt-3 text-[0.95rem] leading-relaxed text-muted-foreground sm:text-base"
             style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
           >
-            Called for Purpose
+            Grace Worship Songs
           </p>
           <div
             className="mt-4 space-y-0.5 text-sm leading-relaxed text-muted-foreground"

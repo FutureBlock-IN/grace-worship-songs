@@ -1,6 +1,14 @@
 import React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+
+import { siteConfig } from "@/config/site";
+
+export const metadata = {
+  title: "Admin Panel",
+  description: `Manage content for ${siteConfig.name}.`,
+};
 
 export default async function AdminLayout({
   children,
@@ -18,13 +26,20 @@ export default async function AdminLayout({
             <ArrowLeft className="h-5 w-5" />
             <span className="text-sm font-medium">Back</span>
           </Link>
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
-              M
+          <div className="flex items-center gap-3">
+            <Image
+              src="/images/logo.png"
+              alt={siteConfig.name}
+              width={32}
+              height={32}
+              className="rounded-full object-cover"
+            />
+            <div className="hidden xl:flex xl:flex-col">
+              <span className="font-heading text-base font-semibold text-white">
+                {siteConfig.name}
+              </span>
+              <span className="text-xs text-muted-foreground">Admin Panel</span>
             </div>
-            <span className="font-heading text-lg font-bold text-white hidden xl:inline">
-              Admin Panel
-            </span>
           </div>
           <div className="w-12" />
         </div>

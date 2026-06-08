@@ -3,6 +3,8 @@ import { FirebaseSongsSection } from "@/components/music/firebase-songs-section"
 import { siteConfig } from "@/config/site";
 import { getAllSongs } from "@/lib/firebase-queries";
 
+export const dynamic = "force-dynamic";
+
 const title = siteConfig.name;
 const description = `Listen to Christian music and read Telugu and English lyrics on ${siteConfig.name}.`;
 

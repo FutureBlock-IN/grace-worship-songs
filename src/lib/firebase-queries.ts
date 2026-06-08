@@ -1,7 +1,5 @@
 "use server";
 
-import { unstable_cache } from "next/cache";
-
 import {
   addDoc,
   collection,
@@ -62,6 +60,7 @@ function normalizeSong(
 ): FirebaseSong {
   const rawAudio = String(data.audioUrl ?? data.audioFileUrl ?? "").trim();
   const rawImage = String(data.imageUrl ?? data.coverImageUrl ?? "").trim();
+  const rawYoutube = String(data.youtubeUrl ?? data.videoUrl ?? "").trim();
 
   return {
     id,
@@ -72,6 +71,7 @@ function normalizeSong(
     ),
     imageUrl: rawImage || undefined,
     audioUrl: rawAudio || undefined,
+    youtubeUrl: rawYoutube || undefined,
     createdAt: toMillis(data.createdAt),
   };
 }
@@ -131,14 +131,8 @@ async function fetchAllSongs(): Promise<FirebaseSong[]> {
   }
 }
 
-const getAllSongsCached = unstable_cache(
-  async () => fetchAllSongs(),
-  ["firebase:getAllSongs"],
-  { revalidate: 60 }
-);
-
 export async function getAllSongs(): Promise<FirebaseSong[]> {
-  return getAllSongsCached();
+  return fetchAllSongs();
 }
 
 async function fetchSongById(songId: string): Promise<FirebaseSong | null> {
@@ -184,12 +178,7 @@ async function fetchSongById(songId: string): Promise<FirebaseSong | null> {
 }
 
 export async function getSongById(songId: string): Promise<FirebaseSong | null> {
-  const cached = unstable_cache(
-    async () => fetchSongById(songId),
-    ["firebase:getSongById", songId],
-    { revalidate: 60 }
-  );
-  return cached();
+  return fetchSongById(songId);
 }
 
 export async function searchSongs(searchQuery: string): Promise<FirebaseSong[]> {

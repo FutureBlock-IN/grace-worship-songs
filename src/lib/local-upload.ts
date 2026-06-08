@@ -48,9 +48,19 @@ export async function uploadSongFileLocal(
     onProgress?.(80);
 
     if (!response.ok) {
-      const error = (await response.json()) as UploadError;
-      console.error(`[LocalUpload] Upload failed:`, error);
-      throw new Error(error.error || `Upload failed with status ${response.status}`);
+      let errorMessage = `Upload failed with status ${response.status}`;
+      try {
+        const errorJson = (await response.json()) as UploadError;
+        if (errorJson.error) {
+          errorMessage = errorJson.details
+            ? `${errorJson.error}: ${errorJson.details}`
+            : errorJson.error;
+        }
+      } catch (jsonError) {
+        console.error("[LocalUpload] Failed to parse error response", jsonError);
+      }
+      console.error(`[LocalUpload] Upload failed: ${errorMessage}`);
+      throw new Error(errorMessage);
     }
 
     const data = (await response.json()) as UploadResponse;

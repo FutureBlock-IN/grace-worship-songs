@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { existsSync } from "fs";
+import { uploadSongFileServer } from "@/lib/firebase-storage-upload";
+import { getAdminStorageBucketName, isAdminConfigured } from "@/lib/firebase-admin";
 
 /**
  * Upload handler for local file storage
@@ -16,19 +18,35 @@ const UPLOAD_DIR = join(process.cwd(), "public", "uploads");
 const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2 MB
 const MAX_AUDIO_SIZE = 20 * 1024 * 1024; // 20 MB
 
-function getFileExtension(mimeType: string): string {
+function getFileExtension(mimeType: string, fileName: string): string {
   const types: Record<string, string> = {
     "image/jpeg": "jpg",
+    "image/jpg": "jpg",
     "image/png": "png",
     "image/webp": "webp",
     "image/gif": "gif",
     "audio/mpeg": "mp3",
+    "audio/mp3": "mp3",
     "audio/wav": "wav",
     "audio/ogg": "ogg",
     "audio/webm": "webm",
     "audio/mp4": "m4a",
+    "audio/x-m4a": "m4a",
+    "audio/aac": "aac",
+    "video/mp4": "m4a",
   };
-  return types[mimeType] || "bin";
+
+  const extFromType = types[mimeType];
+  if (extFromType) {
+    return extFromType;
+  }
+
+  const extFromName = fileName.split(".").pop()?.toLowerCase();
+  if (extFromName) {
+    return extFromName;
+  }
+
+  return "bin";
 }
 
 export async function POST(request: NextRequest) {
@@ -81,9 +99,13 @@ export async function POST(request: NextRequest) {
     });
 
     // File type validation
+    const fileName = file.name || `${songId}`;
+    const ext = getFileExtension(file.type, fileName);
+
     if (type === "cover") {
-      if (!file.type.startsWith("image/")) {
-        console.error(`[Upload] Invalid image type: ${file.type}`);
+      const isValidImage = file.type.startsWith("image/") || ext.match(/^(jpg|jpeg|png|webp|gif|avif)$/);
+      if (!isValidImage) {
+        console.error(`[Upload] Invalid image type: ${file.type} / ${fileName}`);
         return NextResponse.json(
           { error: "Cover must be an image file" },
           { status: 400 }
@@ -97,8 +119,9 @@ export async function POST(request: NextRequest) {
         );
       }
     } else if (type === "audio") {
-      if (!file.type.startsWith("audio/")) {
-        console.error(`[Upload] Invalid audio type: ${file.type}`);
+      const isValidAudio = file.type.startsWith("audio/") || ext.match(/^(mp3|wav|m4a|ogg|webm|aac)$/);
+      if (!isValidAudio) {
+        console.error(`[Upload] Invalid audio type: ${file.type} / ${fileName}`);
         return NextResponse.json(
           { error: "Audio must be an audio file" },
           { status: 400 }
@@ -110,6 +133,28 @@ export async function POST(request: NextRequest) {
           { error: "Audio file must be 20 MB or smaller" },
           { status: 400 }
         );
+      }
+    }
+
+    // If Firebase Admin is configured, prefer Storage upload.
+    if (isAdminConfigured()) {
+      try {
+        const bucketName = getAdminStorageBucketName();
+        console.log("[Upload] Admin Storage bucket configured:", bucketName);
+        const url = await uploadSongFileServer(songId, type, formData);
+        console.log(`[Upload] Server storage upload complete for ${type}:`, {
+          url,
+          songId,
+          bucketName,
+        });
+        return NextResponse.json({
+          success: true,
+          url,
+          fileName,
+          size: file.size,
+        });
+      } catch (storageError) {
+        console.warn("[Upload] Firebase Storage upload failed, falling back to local upload:", storageError);
       }
     }
 
@@ -125,10 +170,8 @@ export async function POST(request: NextRequest) {
       throw dirError;
     }
 
-    // Get file extension
-    const ext = getFileExtension(file.type);
-    const fileName = `${songId}.${ext}`;
-    const filePath = join(typeDir, fileName);
+    const fileNameWithExt = `${songId}.${ext}`;
+    const filePath = join(typeDir, fileNameWithExt);
 
     // Read file buffer
     const bytes = await file.arrayBuffer();
@@ -147,17 +190,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Return relative URL that will work in browser
-    const url = `/uploads/${type}/${fileName}`;
+    const url = `/uploads/${type}/${fileNameWithExt}`;
     console.log(`[Upload] Upload complete for ${type}:`, {
       url,
       songId,
-      fileName,
+      fileName: fileNameWithExt,
     });
 
     return NextResponse.json({
       success: true,
       url,
-      fileName,
+      fileName: fileNameWithExt,
       size: buffer.length,
     });
   } catch (error) {

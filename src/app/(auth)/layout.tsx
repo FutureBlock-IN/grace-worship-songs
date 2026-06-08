@@ -4,11 +4,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
-import { Icons } from "@/components/icons";
 import { buttonVariants } from "@/components/ui/button";
 import { getUser } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { AuthModeToggle } from "./_components/auth-mode-toggle";
+import { siteConfig } from "@/config/site";
 
 type AuthLayoutProps = React.PropsWithChildren;
 
@@ -19,7 +19,7 @@ export default async function AuthLayout({ children }: AuthLayoutProps) {
     redirect("/");
   }
 
-  const imageUrl = `/images/artists/${+(Math.random() * 10).toFixed()}.png`;
+  const imageUrl = "/images/logo.png";
 
   return (
     <div className="grid h-screen lg:grid-cols-2">
@@ -35,13 +35,20 @@ export default async function AuthLayout({ children }: AuthLayoutProps) {
           Back
         </Link>
 
-        <Image
-          src={imageUrl}
-          width={1280}
-          height={640}
-          alt="Artist Image"
-          className="mx-auto max-w-md object-cover duration-1000 animate-in zoom-in-50"
-        />
+        <div className="mx-auto flex w-full max-w-md flex-col items-center justify-center gap-6 text-center">
+          <Image
+            src={imageUrl}
+            width={360}
+            height={360}
+            alt={siteConfig.name}
+            className="mx-auto max-w-[260px] rounded-3xl object-contain"
+            priority
+          />
+          <div>
+            <h2 className="font-heading text-4xl">{siteConfig.name}</h2>
+            <p className="mt-3 text-lg text-muted-foreground">Christian worship music and lyrics</p>
+          </div>
+        </div>
 
         <div className="mb-20 text-center 2xl:mb-32">
           <h2 className="font-heading text-5xl">All Your Music.</h2>
@@ -52,7 +59,14 @@ export default async function AuthLayout({ children }: AuthLayoutProps) {
       <AuthModeToggle />
 
       <div className="m-auto flex w-full flex-col justify-center space-y-6 p-8 sm:w-[350px] sm:p-0">
-        <Icons.Logo className="mx-auto size-14 drop-shadow" />
+        <Image
+          src={imageUrl}
+          width={120}
+          height={120}
+          alt={siteConfig.name}
+          className="mx-auto h-28 w-28 rounded-3xl object-contain"
+          priority
+        />
         {children}
         <p className="mx-auto px-10 text-center text-sm text-muted-foreground">
           By clicking continue, you agree to our{" "}

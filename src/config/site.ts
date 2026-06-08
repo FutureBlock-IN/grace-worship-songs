@@ -2,8 +2,9 @@ export const DEFAULT_SONG_COVER = "/images/default-cover.png";
 
 export const siteConfig = {
   name: "Grace Worship Songs",
-  url: "https://calledforpurpose.org",
+  url: "https://amshumathimary.com/",
   description: "Christian music and lyrics for worship and praise.",
+  image: "/images/logo.png",
 
   ministry: {
     title: "Grace Evangelical Ministries Worship Songs",

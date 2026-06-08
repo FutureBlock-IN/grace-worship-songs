@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ImageWithFallback } from "@/components/image-with-fallback";
 import Link from "next/link";
 
 import { siteConfig } from "@/config/site";
@@ -13,13 +14,14 @@ export async function Navbar() {
       suppressHydrationWarning
     >
       <div className="mx-auto flex h-14 min-w-0 items-center gap-3 px-3 sm:h-16 sm:px-4 md:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2.5 sm:gap-3">
-          <Image
-            src="/images/logo.png"
+        <Link href="/" className="flex shrink-0 items-center gap-3 sm:gap-4">
+          <ImageWithFallback
+            src={siteConfig.image || "/images/logo.png"}
+            fallback="/images/logo.png"
             alt={siteConfig.name}
             width={44}
             height={44}
-            className="size-9 rounded-full border border-border object-cover sm:size-11"
+            className="h-11 w-11 object-contain rounded-full sm:h-12 sm:w-12"
             priority
           />
           <span className="hidden font-heading text-sm font-semibold text-foreground sm:inline md:text-base">

@@ -30,13 +30,13 @@ export async function GET(request: Request) {
   const description =
     searchParams.get("description")?.slice(0, 300) ?? siteConfig.description;
 
-  const imageUrl =
-    searchParams.get("image") ??
-    "https://graph.org/file/16937ebb693470d804f31.png";
+  const defaultImage = new URL("/images/logo.png", siteConfig.url).toString();
+  const imageUrl = searchParams.get("image") ?? defaultImage;
+  const resolvedImageUrl = new URL(imageUrl, siteConfig.url).toString();
 
   const isSquaredImage = searchParams.get("square") === "true";
 
-  const image = await fetchImage(imageUrl);
+  const image = await fetchImage(resolvedImageUrl);
   const font = await fetchFonts();
 
   try {

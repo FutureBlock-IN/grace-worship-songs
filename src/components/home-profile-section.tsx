@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ImageWithFallback } from "@/components/image-with-fallback";
 
 import { siteConfig } from "@/config/site";
 
@@ -14,8 +15,9 @@ export function HomeProfileSection() {
         <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-3.5">
           <div className="relative shrink-0">
             <div className="rounded-full bg-gradient-to-br from-primary/15 to-primary/5 p-0.5">
-              <Image
-                src={siteConfig.profile.image}
+              <ImageWithFallback
+                src={siteConfig.profile.image || "/images/logo.png"}
+                fallback="/images/profile.png"
                 alt={siteConfig.profile.name}
                 width={72}
                 height={72}

@@ -49,6 +49,17 @@ export function SongDetailClient({ song }: SongDetailClientProps) {
 
   const audioUrl = song.audioUrl?.trim() ?? "";
   const coverUrl = getSongCoverUrl(song.imageUrl);
+  const youtubeUrl = song.youtubeUrl?.trim() ?? "";
+  const [showVideo, setShowVideo] = React.useState(false);
+
+  function getYouTubeEmbedUrl(url: string) {
+    if (!url) return null;
+    // Extract video id from common YouTube URL patterns
+    const idMatch = url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
+    const id = idMatch ? idMatch[1] : null;
+    return id ? `https://www.youtube.com/embed/${id}` : null;
+  }
+  const embedSrc = getYouTubeEmbedUrl(youtubeUrl);
 
   React.useLayoutEffect(() => {
     if (audioUrl) {
@@ -189,20 +200,58 @@ export function SongDetailClient({ song }: SongDetailClientProps) {
         </aside>
 
         <div className="min-w-0">
+          {embedSrc && (
+            <div className="mb-4">
+              <div className="flex items-center gap-3">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowVideo((s) => !s)}
+                >
+                  {showVideo ? "Hide Video" : "Watch Song Video"}
+                </Button>
+                <a
+                  href={youtubeUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm text-muted-foreground underline"
+                >
+                  Open on YouTube
+                </a>
+              </div>
+
+              {showVideo && (
+                <div className="mt-3">
+                  <div className="relative overflow-hidden rounded-lg" style={{ paddingTop: "56.25%" }}>
+                    <iframe
+                      src={embedSrc}
+                      title={`YouTube video for ${song.title}`}
+                      className="absolute inset-0 h-full w-full"
+                      frameBorder={0}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           {hasLyrics ?
             <FirebaseSongLyrics
               songTitle={song.title}
               lyrics={song.lyrics}
               transliteratedLyrics={song.transliteratedLyrics}
             />
-          : <div className="space-y-3">
+          : (
+            <div className="space-y-3">
               <h1 className="font-heading text-xl font-bold leading-snug sm:text-2xl">
                 {song.title}
               </h1>
               <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-                No lyrics available for this song.
+                📖 Lyrics are not available for this song.
               </div>
             </div>
+          )
           }
         </div>
       </div>

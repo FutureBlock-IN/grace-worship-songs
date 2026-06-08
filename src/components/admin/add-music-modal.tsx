@@ -73,6 +73,7 @@ export function AddMusicModal({
     title: "",
     lyrics: "",
     transliteratedLyrics: "",
+    youtubeUrl: "",
   });
 
   const [files, setFiles] = useState<{
@@ -99,6 +100,7 @@ export function AddMusicModal({
         title: initialSong.title,
         lyrics: initialSong.lyrics || "",
         transliteratedLyrics: initialSong.transliteratedLyrics || "",
+        youtubeUrl: initialSong.youtubeUrl || "",
       });
       setCoverPreview(initialSong.imageUrl || "");
       setFiles({});
@@ -107,6 +109,7 @@ export function AddMusicModal({
         title: "",
         lyrics: "",
         transliteratedLyrics: "",
+        youtubeUrl: "",
       });
       setCoverPreview("");
       setFiles({});
@@ -119,6 +122,13 @@ export function AddMusicModal({
   ) {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  }
+
+  function isValidYouTubeUrl(url: string) {
+    if (!url) return true;
+    // Accept youtube.com and youtu.be links and embed links
+    const re = /(youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtu\.be\/)/i;
+    return re.test(url.trim());
   }
 
   function handleFileChange(
@@ -203,6 +213,11 @@ export function AddMusicModal({
       }
     }
 
+    if (formData.youtubeUrl && !isValidYouTubeUrl(formData.youtubeUrl)) {
+      toast.error("YouTube URL must be a valid youtube.com or youtu.be link");
+      return;
+    }
+
     setLoading(true);
     setUploadProgress({ cover: 0, audio: 0 });
 
@@ -216,9 +231,11 @@ export function AddMusicModal({
           title: formData.title.trim(),
           lyrics: formData.lyrics,
           transliteratedLyrics: formData.transliteratedLyrics,
+          youtubeUrl: formData.youtubeUrl?.trim() || "",
         });
 
-        const updates: { imageUrl?: string; audioUrl?: string } = {};
+        const updates: { imageUrl?: string; audioUrl?: string; youtubeUrl?: string } = {}
+      ;
 
         // Upload cover if provided
         if (files.cover) {
@@ -260,11 +277,12 @@ export function AddMusicModal({
           transliteratedLyrics: formData.transliteratedLyrics,
           imageUrl: "",
           audioUrl: "",
+          youtubeUrl: formData.youtubeUrl?.trim() || "",
         });
 
         console.log("[AddMusicModal] Song created:", songId);
 
-        const updates: { imageUrl?: string; audioUrl?: string } = {};
+        const updates: { imageUrl?: string; audioUrl?: string; youtubeUrl?: string } = {};
 
         // Upload cover image if provided
         if (files.cover) {
@@ -304,7 +322,7 @@ export function AddMusicModal({
 
       // Close modal and reload songs
       onSave();
-      setFormData({ title: "", lyrics: "", transliteratedLyrics: "" });
+      setFormData({ title: "", lyrics: "", transliteratedLyrics: "", youtubeUrl: "" });
       setFiles({});
       setCoverPreview("");
     } catch (error) {
@@ -387,7 +405,7 @@ export function AddMusicModal({
                 <input
                   type="file"
                   id="cover"
-                  accept="image/*"
+                  accept=".jpg,.jpeg,.png,.webp,.gif,.avif,image/*"
                   onChange={(e) => handleFileChange(e, "cover")}
                   className="hidden"
                   disabled={loading}
@@ -427,7 +445,7 @@ export function AddMusicModal({
               <input
                 type="file"
                 id="audio"
-                accept="audio/*"
+                accept=".mp3,.wav,.m4a,audio/*"
                 onChange={(e) => handleFileChange(e, "audio")}
                 className="hidden"
                 disabled={loading}
@@ -460,6 +478,18 @@ export function AddMusicModal({
               onChange={handleInputChange}
               placeholder="Enter English transliteration lyrics..."
               rows={5}
+              disabled={loading}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="youtubeUrl">YouTube Video URL (optional)</Label>
+            <Input
+              id="youtubeUrl"
+              name="youtubeUrl"
+              value={formData.youtubeUrl}
+              onChange={handleInputChange}
+              placeholder="https://youtube.com/watch?v=... or https://youtu.be/..."
               disabled={loading}
             />
           </div>
