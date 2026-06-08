@@ -39,8 +39,8 @@ export default function AdminPage() {
             createdAt:
               typeof doc.data().createdAt === "object" &&
               doc.data().createdAt !== null &&
-              typeof (doc.data().createdAt as any).toMillis === "function"
-                ? (doc.data().createdAt as any).toMillis()
+              typeof (doc.data().createdAt as { toMillis(): number }).toMillis === "function"
+                ? (doc.data().createdAt as { toMillis(): number }).toMillis()
                 : Date.now(),
           }))
         );

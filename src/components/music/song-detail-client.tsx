@@ -73,11 +73,8 @@ export function SongDetailClient({ song }: SongDetailClientProps) {
           download_url: audioUrl,
           url: `/songs/${encodeURIComponent(song.id)}`,
           type: "song",
-          explicit: false,
-          hasLyrics: Boolean(teluguDisplay),
-          playCount: 0,
-          year: new Date().getFullYear(),
-        } as any,
+          artists: [],
+        },
       ]);
       setCurrentIndex(0);
       setIsPlayerInit(true);

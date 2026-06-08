@@ -29,7 +29,7 @@ const NotFound = () => {
 
       <div className="mb-8 max-w-2xl">
         <p className="text-xl italic">
-          "The Lord is my shepherd; I shall not want."
+          &ldquo;The Lord is my shepherd; I shall not want.&rdquo;
         </p>
         <p className="mt-2 font-semibold">
           Psalm 23:1

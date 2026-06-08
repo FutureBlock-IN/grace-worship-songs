@@ -18,12 +18,12 @@ function normalizeSongData(
   id: string,
   data: Record<string, unknown>
 ): FirebaseSong {
-  const createdAtValue = data.createdAt as any;
+  const createdAtValue = data.createdAt as unknown;
   const createdAt =
     createdAtValue &&
     typeof createdAtValue === "object" &&
-    typeof createdAtValue.toMillis === "function"
-      ? createdAtValue.toMillis()
+    typeof (createdAtValue as { toMillis(): number }).toMillis === "function"
+      ? (createdAtValue as { toMillis(): number }).toMillis()
       : typeof createdAtValue === "number"
       ? createdAtValue
       : Date.now();

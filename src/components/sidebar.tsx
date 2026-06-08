@@ -3,8 +3,8 @@
 import React from "react";
 
 type SidebarProps = {
-  user?: any;
-  userPlaylists?: any[];
+  user?: unknown;
+  userPlaylists?: unknown[];
 };
 
 export function Sidebar({ user, userPlaylists }: SidebarProps) {

@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { existsSync } from "fs";
@@ -52,12 +53,15 @@ function getFileExtension(mimeType: string, fileName: string): string {
 export async function POST(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const type = searchParams.get("type"); // "cover" or "audio"
+    const typeParam = searchParams.get("type"); // "cover" or "audio"
     const songId = searchParams.get("songId");
 
-    // Validation
-    if (!type || !["cover", "audio"].includes(type)) {
-      console.error("[Upload] Invalid type:", type);
+    // Type validation with proper type narrowing
+    let type: "cover" | "audio";
+    if (typeParam === "cover" || typeParam === "audio") {
+      type = typeParam;
+    } else {
+      console.error("[Upload] Invalid type:", typeParam);
       return NextResponse.json(
         { error: "Invalid file type. Must be 'cover' or 'audio'" },
         { status: 400 }

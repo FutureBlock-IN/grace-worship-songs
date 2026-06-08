@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { ImageWithFallback } from "@/components/image-with-fallback";
 
 import { siteConfig } from "@/config/site";
