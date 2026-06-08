@@ -1,0 +1,235 @@
+import { siteConfig } from "@/config/site";
+
+export const metadata = {
+  title: "Privacy Policy",
+  description: `Privacy policy for ${siteConfig.name}.`,
+};
+
+const sections = [
+  {
+    title: "Introduction",
+    paragraphs: [
+      'This Privacy Policy explains how Called for Purpose ("we," "us," or "our") collects, uses, stores, and protects information when you use the Called for Purpose application and related services (collectively, the "App").',
+      "By using the App, you agree to the collection and use of information in accordance with this Privacy Policy.",
+      "This policy applies to Called for Purpose and is reviewed periodically to keep it current and accurate.",
+    ],
+  },
+  {
+    title: "Information We Collect",
+    paragraphs: [
+      "Depending on how you use the App, we may collect the following types of information:",
+    ],
+    list: [
+      "Account Information: such as your name, email address, username, and login credentials if you create an account.",
+      "User Content: such as playlists, favorites, song preferences, uploaded audio files, and other content you choose to save or submit through the App.",
+      "Usage Information: such as songs played, search history, features used, session duration, and interaction with the App.",
+      "Device Information: such as device model, operating system, app version, device identifiers, IP address, and crash logs.",
+      "Payment Information: if you offer subscriptions or purchases, payment processing may be handled by third-party providers. We do not store full payment card details unless explicitly stated.",
+      "Support Information: information you provide when contacting us for help, feedback, or support.",
+    ],
+  },
+  {
+    title: "How We Collect Information",
+    list: [
+      "Directly from you when you register, contact us, create playlists, favorite songs, upload content, or use the App.",
+      "Automatically through analytics tools, cookies, SDKs, server logs, and device permissions.",
+      "From third-party providers such as authentication, hosting, payment, analytics, or cloud storage services.",
+    ],
+  },
+  {
+    title: "How We Use Your Information",
+    paragraphs: ["We may use your information to:"],
+    list: [
+      "Provide, operate, and maintain the App.",
+      "Create and manage your account.",
+      "Save your playlists, favorites, listening history, and preferences.",
+      "Upload, store, stream, or manage songs and related content.",
+      "Improve user experience, app functionality, and performance.",
+      "Send updates, service notices, security alerts, and support responses.",
+      "Monitor usage trends, troubleshoot issues, and prevent abuse or fraud.",
+      "Comply with legal obligations and enforce our terms.",
+    ],
+  },
+  {
+    title: "Legal Basis for Processing (If Applicable)",
+    paragraphs: [
+      "If you are located in a region that requires a legal basis for processing personal information, we process your information based on one or more of the following:",
+    ],
+    list: [
+      "Your consent.",
+      "The performance of a contract with you.",
+      "Compliance with legal obligations.",
+      "Our legitimate interests, such as improving and securing the App.",
+    ],
+  },
+  {
+    title: "Analytics, Cookies, and Similar Technologies",
+    paragraphs: [
+      "We may use analytics providers and similar technologies to understand how users interact with the App, improve functionality, and monitor performance.",
+      "Examples may include Google Analytics, Firebase Analytics, or equivalent telemetry tools.",
+      "These tools may collect information such as device type, operating system, feature usage, session duration, crash reports, and approximate location derived from IP address.",
+    ],
+  },
+  {
+    title: "Permissions",
+    paragraphs: ["The App may request access to certain device features, such as:"],
+    list: [
+      "Storage or Files: to upload, save, or access songs and audio content.",
+      "Microphone: if recording or voice-based features are offered.",
+      "Notifications: to send updates, reminders, or alerts.",
+      "Internet Access: to stream songs, sync content, and support online features.",
+    ],
+    footer:
+      "You can control many permissions through your device settings. Disabling certain permissions may limit app functionality.",
+  },
+  {
+    title: "Sharing of Information",
+    paragraphs: [
+      "We do not sell your personal information. We may share information in the following circumstances:",
+    ],
+    list: [
+      "Service Providers: with trusted vendors who help us host, operate, analyze, support, or secure the App.",
+      "Legal Compliance: when required by law, regulation, legal process, or governmental request.",
+      "Business Transfers: in connection with a merger, acquisition, financing, or sale of assets.",
+      "Protection of Rights: to protect our rights, users, systems, or property.",
+    ],
+  },
+  {
+    title: "Data Retention",
+    paragraphs: [
+      "We retain personal information only for as long as necessary to provide the App, fulfill the purposes described in this Privacy Policy, comply with legal obligations, resolve disputes, and enforce our agreements.",
+      "If you request deletion of your account, we will delete or anonymize your information within a reasonable time, unless we are required to retain certain data for legal, security, or operational reasons.",
+    ],
+  },
+  {
+    title: "Data Security",
+    paragraphs: [
+      "We use reasonable administrative, technical, and organizational measures to protect your information against unauthorized access, loss, misuse, alteration, or disclosure. However, no method of transmission over the internet or electronic storage is completely secure, and we cannot guarantee absolute security.",
+    ],
+  },
+  {
+    title: "International Data Transfers",
+    paragraphs: [
+      "Your information may be processed and stored in countries other than your own. By using the App, you understand that your information may be transferred to servers and service providers located in different jurisdictions.",
+    ],
+  },
+  {
+    title: "Your Privacy Rights",
+    paragraphs: [
+      "Depending on your location, you may have rights to access, correct, delete, restrict, or object to the processing of your personal information, withdraw consent where applicable, or request a copy of your data.",
+      "To exercise any of these rights, contact us at privacy@calledforpurpose.org.",
+    ],
+  },
+  {
+    title: "Children's Privacy",
+    paragraphs: [
+      "The App is not directed to children under the age of 13, or the minimum age required by applicable law in your jurisdiction, unless specifically stated otherwise. We do not knowingly collect personal information from children without appropriate consent. If you believe a child has provided us with personal information, please contact us so we can take appropriate action.",
+    ],
+  },
+  {
+    title: "Third-Party Services and Links",
+    paragraphs: [
+      "The App may contain links to third-party websites, services, music platforms, storage providers, or content sources. We are not responsible for the privacy practices, policies, or content of third parties. We encourage you to review their privacy policies separately.",
+    ],
+  },
+  {
+    title: "User-Uploaded Content and Rights",
+    paragraphs: [
+      "If the App allows you to upload songs, audio files, lyrics, playlists, or other content, you are responsible for ensuring that you have the necessary rights, permissions, or licenses to upload and use that content. We may remove content that violates intellectual property rights, applicable law, or our terms.",
+    ],
+  },
+  {
+    title: "Changes to This Privacy Policy",
+    paragraphs: [
+      'We may update this Privacy Policy from time to time. If we make material changes, we will update the "Last Updated" date above and may provide additional notice through the App or other appropriate means.',
+    ],
+  },
+  {
+    title: "Contact Us",
+    paragraphs: [
+      "If you have any questions, requests, or concerns about this Privacy Policy, you can contact us at:",
+      "Called for Purpose",
+      "Email: privacy@calledforpurpose.org",
+      "Address: Hyderabad, Telangana, India",
+    ],
+  },
+];
+
+export default function PrivacyPage() {
+  return (
+    <div className="w-full px-4 sm:px-6">
+      <article className="mx-auto w-full max-w-[900px]">
+        <header className="border-b border-border/50 pb-6 pt-2 sm:pb-7">
+          <h1
+            className="text-[2rem] font-bold leading-tight tracking-tight text-foreground sm:text-[2.5rem]"
+            style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
+          >
+            Privacy Policy
+          </h1>
+          <p
+            className="mt-3 text-[0.95rem] leading-relaxed text-muted-foreground sm:text-base"
+            style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
+          >
+            Called for Purpose
+          </p>
+          <div
+            className="mt-4 space-y-0.5 text-sm leading-relaxed text-muted-foreground"
+            style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
+          >
+            <p>Effective Date: April 15, 2026</p>
+            <p>Last Updated: April 15, 2026</p>
+          </div>
+        </header>
+
+        <div className="py-2">
+          {sections.map((section, index) => (
+            <div key={section.title}>
+              {index > 0 && (
+                <hr className="my-6 border-0 border-t border-border/40 sm:my-7" />
+              )}
+
+              <section className="space-y-2.5 sm:space-y-3">
+                <h2
+                  className="text-[1.125rem] font-bold leading-snug text-[#2563c7] dark:text-blue-400 sm:text-[1.25rem]"
+                  style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
+                >
+                  {index + 1}. {section.title}
+                </h2>
+
+                {section.paragraphs?.map((paragraph) => (
+                  <p
+                    key={paragraph.slice(0, 48)}
+                    className="text-[0.9375rem] leading-[1.65] text-[#111111] dark:text-foreground/90 sm:text-base sm:leading-[1.7]"
+                    style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
+                  >
+                    {paragraph}
+                  </p>
+                ))}
+
+                {section.list && (
+                  <ul
+                    className="list-disc space-y-1.5 pl-5 text-[0.9375rem] leading-[1.65] text-[#111111] dark:text-foreground/90 sm:text-base sm:leading-[1.7]"
+                    style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
+                  >
+                    {section.list.map((item) => (
+                      <li key={item.slice(0, 48)}>{item}</li>
+                    ))}
+                  </ul>
+                )}
+
+                {section.footer && (
+                  <p
+                    className="text-[0.9375rem] leading-[1.65] text-[#111111] dark:text-foreground/90 sm:text-base sm:leading-[1.7]"
+                    style={{ fontFamily: "Arial, Helvetica, sans-serif" }}
+                  >
+                    {section.footer}
+                  </p>
+                )}
+              </section>
+            </div>
+          ))}
+        </div>
+      </article>
+    </div>
+  );
+}
