@@ -18,7 +18,7 @@ export const siteConfig = {
 
   author: {
     name: "Grace Worship Songs",
-    url: "https://calledforpurpose.org",
+    url: "https://www.youtube.com/@Dr.AmshumathiMaryDarla",
     email: "",
     x: "",
   },
