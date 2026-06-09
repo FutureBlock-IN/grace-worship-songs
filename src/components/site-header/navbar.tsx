@@ -58,121 +58,77 @@
 
 
 // Calude code
-"use client";
-
 import { ImageWithFallback } from "@/components/image-with-fallback";
 import Link from "next/link";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
 
 import { siteConfig } from "@/config/site";
 import { FirebaseTopSongs } from "../search/firebase-top-songs";
 import { SearchMenu } from "../search/search-menu";
 import { ThemeToggleGroup } from "../site-footer/theme-toggle-group";
+import { MobileMenuToggle } from "../site-header/mobile-menu-toggle";
 
-export function Navbar() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+// NO "use client" here — this is a Server Component
+// MobileMenuToggle is the only client island (handles useState for hamburger)
+// FirebaseTopSongs is an async Server Component passed as a prop to SearchMenu
 
+export async function Navbar() {
   return (
-    <>
-      <header
-        className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
-        suppressHydrationWarning
-      >
-        <div className="mx-auto flex h-14 min-w-0 items-center gap-3 px-3 sm:h-16 sm:px-4 md:px-6">
+    <header
+      className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
+      suppressHydrationWarning
+    >
+      <div className="relative mx-auto flex h-14 min-w-0 items-center gap-3 px-3 sm:h-16 sm:px-4 md:px-6">
 
-          {/* Logo */}
-          <Link
-            href="/"
-            className="flex shrink-0 items-center gap-2.5 sm:gap-3"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            <div className="relative">
-              <ImageWithFallback
-                src={siteConfig.image || "/images/logo.png"}
-                fallback="/images/logo.png"
-                alt={siteConfig.name}
-                width={40}
-                height={40}
-                className="h-9 w-9 rounded-full object-contain ring-2 ring-primary/20 sm:h-10 sm:w-10"
-                priority
-              />
-            </div>
-            <span className="hidden font-heading text-sm font-semibold text-foreground sm:inline md:text-base">
-              {siteConfig.name}
-            </span>
-          </Link>
+        {/* Logo */}
+        <Link href="/" className="flex shrink-0 items-center gap-2.5 sm:gap-3">
+          <ImageWithFallback
+            src={siteConfig.image || "/images/logo.png"}
+            fallback="/images/logo.png"
+            alt={siteConfig.name}
+            width={40}
+            height={40}
+            className="h-9 w-9 rounded-full object-contain ring-2 ring-primary/20 sm:h-10 sm:w-10"
+            priority
+          />
+          <span className="hidden font-heading text-sm font-semibold text-foreground sm:inline md:text-base">
+            {siteConfig.name}
+          </span>
+        </Link>
 
-          {/* Search bar — center */}
-          <div className="flex min-w-0 flex-1 justify-center px-1 sm:px-2 md:px-4">
-            <SearchMenu
-              topSearch={<FirebaseTopSongs />}
-              className="w-full max-w-[200px] sm:max-w-sm md:max-w-md lg:max-w-lg"
-            />
-          </div>
-
-          {/* Desktop nav */}
-          <nav className="hidden shrink-0 items-center gap-1 md:flex">
-            <Link
-              href="/about"
-              className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            >
-              About
-            </Link>
-            <Link
-              href="/privacy"
-              className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            >
-              Privacy
-            </Link>
-            <div className="ml-1 border-l border-border/60 pl-3">
-              <ThemeToggleGroup />
-            </div>
-          </nav>
-
-          {/* Mobile right side: theme + hamburger */}
-          <div className="flex shrink-0 items-center gap-1 md:hidden">
-            <ThemeToggleGroup />
-            <button
-              type="button"
-              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-              onClick={() => setMobileMenuOpen((v) => !v)}
-              className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            >
-              {mobileMenuOpen ? (
-                <X className="h-4 w-4" />
-              ) : (
-                <Menu className="h-4 w-4" />
-              )}
-            </button>
-          </div>
-
+        {/* Search — center */}
+        <div className="flex min-w-0 flex-1 justify-center px-1 sm:px-2 md:px-4">
+          <SearchMenu
+            topSearch={<FirebaseTopSongs />}
+            className="w-full max-w-[200px] sm:max-w-sm md:max-w-md lg:max-w-lg"
+          />
         </div>
 
-        {/* Mobile dropdown menu */}
-        {mobileMenuOpen && (
-          <div className="border-t border-border/60 bg-background/98 px-4 py-3 md:hidden">
-            <nav className="flex flex-col gap-1">
-              <Link
-                href="/about"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              >
-                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-base">ℹ️</span>
-                About
-              </Link>
-              <Link
-                href="/privacy"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              >
-                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-base">🔒</span>
-                Privacy
-              </Link>
-            </nav>
+        {/* Desktop nav */}
+        <nav className="hidden shrink-0 items-center gap-1 md:flex">
+          <Link
+            href="/about"
+            className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            About
+          </Link>
+          <Link
+            href="/privacy"
+            className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            Privacy
+          </Link>
+          <div className="ml-1 border-l border-border/60 pl-3">
+            <ThemeToggleGroup />
           </div>
-        )}
-      </header>
-    </>
+        </nav>
+
+        {/* Mobile: theme toggle + hamburger (client island) */}
+        <div className="flex shrink-0 items-center gap-1 md:hidden">
+          <ThemeToggleGroup />
+          <MobileMenuToggle />
+        </div>
+
+      </div>
+    </header>
   );
 }
