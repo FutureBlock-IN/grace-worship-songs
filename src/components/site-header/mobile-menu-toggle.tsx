@@ -55,17 +55,88 @@
 
 // Calude code
 
+// "use client";
+
+// import Link from "next/link";
+// import { useState, useEffect, useRef } from "react";
+// import { Menu, X } from "lucide-react";
+
+// export function MobileMenuToggle() {
+//   const [open, setOpen] = useState(false);
+//   const ref = useRef<HTMLDivElement>(null);
+
+//   // Close on outside click
+//   useEffect(() => {
+//     if (!open) return;
+//     const handler = (e: MouseEvent) => {
+//       if (ref.current && !ref.current.contains(e.target as Node)) {
+//         setOpen(false);
+//       }
+//     };
+//     document.addEventListener("mousedown", handler);
+//     return () => document.removeEventListener("mousedown", handler);
+//   }, [open]);
+
+//   return (
+//     <div ref={ref} className="relative">
+//       <button
+//         type="button"
+//         aria-label={open ? "Close menu" : "Open menu"}
+//         onClick={() => setOpen((v) => !v)}
+//         className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+//       >
+//         {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+//       </button>
+
+//       {open && (
+//         <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-lg border border-border bg-background shadow-lg">
+//           <nav className="flex flex-col gap-0.5 p-2">
+//             <Link
+//               href="/"
+//               onClick={() => setOpen(false)}
+//               className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+//             >
+//               <span className="flex h-6 w-6 items-center justify-center rounded bg-primary/10 text-sm">🏠</span>
+//               Home
+//             </Link>
+//             <Link
+//               href="/about"
+//               onClick={() => setOpen(false)}
+//               className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+//             >
+//               <span className="flex h-6 w-6 items-center justify-center rounded bg-primary/10 text-sm">ℹ️</span>
+//               About
+//             </Link>
+//             <Link
+//               href="/privacy"
+//               onClick={() => setOpen(false)}
+//               className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+//             >
+//               <span className="flex h-6 w-6 items-center justify-center rounded bg-primary/10 text-sm">🔒</span>
+//               Privacy
+//             </Link>
+//           </nav>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+
+// Calude code - 2w
+
+
 "use client";
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { Menu, X } from "lucide-react";
+import { ThemeToggleGroup } from "../site-footer/theme-toggle-group";
 
 export function MobileMenuToggle() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  // Close on outside click
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
@@ -89,7 +160,7 @@ export function MobileMenuToggle() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-lg border border-border bg-background shadow-lg">
+        <div className="absolute right-0 top-full z-50 mt-1 w-52 rounded-lg border border-border bg-background shadow-lg">
           <nav className="flex flex-col gap-0.5 p-2">
             <Link
               href="/"
@@ -115,6 +186,15 @@ export function MobileMenuToggle() {
               <span className="flex h-6 w-6 items-center justify-center rounded bg-primary/10 text-sm">🔒</span>
               Privacy
             </Link>
+
+            {/* Divider */}
+            <div className="my-1 border-t border-border/60" />
+
+            {/* Theme toggle row */}
+            <div className="flex items-center justify-between rounded-md px-3 py-2">
+              <span className="text-sm font-medium text-muted-foreground">Theme</span>
+              <ThemeToggleGroup />
+            </div>
           </nav>
         </div>
       )}

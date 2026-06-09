@@ -124,7 +124,7 @@ export async function Navbar() {
 
         {/* Mobile: theme toggle + hamburger (client island) */}
         <div className="flex shrink-0 items-center gap-1 md:hidden">
-          <ThemeToggleGroup />
+          {/* <ThemeToggleGroup /> */}
           <MobileMenuToggle />
         </div>
 
