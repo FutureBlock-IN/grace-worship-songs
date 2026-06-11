@@ -215,7 +215,7 @@ export function FirebaseSongCard({ song, className }: FirebaseSongCardProps) {
           {englishTitle}
         </h3>
         {teluguTitle && (
-          <p className="truncate text-center text-[10px] leading-snug text-muted-foreground sm:text-xs">
+          <p className="truncate text-center text-[11px] leading-snug text-muted-foreground sm:text-xs">
             {teluguTitle}
           </p>
         )}
