@@ -129,12 +129,15 @@ function normalizeSongData(
   return {
     id,
     title: String(data.title ?? ""),
+    englishTitle: String(data.englishTitle ?? "").trim() || undefined,
+    teluguTitle: String(data.teluguTitle ?? "").trim() || undefined,
     lyrics: String(data.lyrics ?? data.teluguLyrics ?? ""),
     transliteratedLyrics: String(
       data.transliteratedLyrics ?? data.englishLyrics ?? ""
     ),
     imageUrl: String(data.imageUrl ?? data.coverImageUrl ?? "") || undefined,
     audioUrl: String(data.audioUrl ?? data.audioFileUrl ?? "") || undefined,
+    playCount: typeof data.playCount === "number" ? data.playCount : 0,
     createdAt,
   };
 }
@@ -186,8 +189,7 @@ export function FirebaseSongsSection({ songs }: FirebaseSongsSectionProps) {
     <section className="w-full space-y-5">
       <SectionHeader count={liveSongs.length} />
 
-      {/* Responsive grid: 2 cols mobile → 3 sm → 4 md → 5 lg → 6 xl */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-4">
+      <div className="grid grid-cols-2 gap-3 max-[640px]:grid-cols-1 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-4">
         {liveSongs.map((song) => (
           <FirebaseSongCard key={song.id} song={song} className="w-full" />
         ))}
