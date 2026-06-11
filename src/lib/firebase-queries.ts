@@ -7,6 +7,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  increment,
   orderBy,
   query,
   Timestamp,
@@ -54,24 +55,47 @@ function toMillis(value: unknown): number {
   return Date.now();
 }
 
-function normalizeSong(
-  id: string,
-  data: Record<string, unknown>
-): FirebaseSong {
+// function normalizeSong(
+//   id: string,
+//   data: Record<string, unknown>
+// ): FirebaseSong {
+//   const rawAudio = String(data.audioUrl ?? data.audioFileUrl ?? "").trim();
+//   const rawImage = String(data.imageUrl ?? data.coverImageUrl ?? "").trim();
+//   const rawYoutube = String(data.youtubeUrl ?? data.videoUrl ?? "").trim();
+
+//   return {
+//     id,
+//     title: String(data.title ?? ""),
+//     lyrics: String(data.lyrics ?? data.teluguLyrics ?? ""),
+//     transliteratedLyrics: String(
+//       data.transliteratedLyrics ?? data.englishLyrics ?? ""
+//     ),
+//     imageUrl: rawImage || undefined,
+//     audioUrl: rawAudio || undefined,
+//     youtubeUrl: rawYoutube || undefined,
+//     createdAt: toMillis(data.createdAt),
+//   };
+// }
+
+function normalizeSong(id: string, data: Record<string, unknown>): FirebaseSong {
   const rawAudio = String(data.audioUrl ?? data.audioFileUrl ?? "").trim();
   const rawImage = String(data.imageUrl ?? data.coverImageUrl ?? "").trim();
   const rawYoutube = String(data.youtubeUrl ?? data.videoUrl ?? "").trim();
-
+ 
+  const englishTitle = String(data.englishTitle ?? "").trim() || undefined;
+  const teluguTitle = String(data.teluguTitle ?? "").trim() || undefined;
+ 
   return {
     id,
-    title: String(data.title ?? ""),
+    title: String(data.title ?? ""),       // legacy fallback
+    englishTitle,                           // new
+    teluguTitle,                            // new
     lyrics: String(data.lyrics ?? data.teluguLyrics ?? ""),
-    transliteratedLyrics: String(
-      data.transliteratedLyrics ?? data.englishLyrics ?? ""
-    ),
+    transliteratedLyrics: String(data.transliteratedLyrics ?? data.englishLyrics ?? ""),
     imageUrl: rawImage || undefined,
     audioUrl: rawAudio || undefined,
     youtubeUrl: rawYoutube || undefined,
+    playCount: typeof data.playCount === "number" ? data.playCount : 0,
     createdAt: toMillis(data.createdAt),
   };
 }
@@ -135,6 +159,18 @@ export async function getAllSongs(): Promise<FirebaseSong[]> {
   return fetchAllSongs();
 }
 
+// ── incrementPlayCount ────────────────────────────────────────────────────────
+export async function incrementPlayCount(songId: string): Promise<void> {
+  if (!songId?.trim()) return;
+  try {
+    await updateDoc(doc(db, SONGS_COLLECTION, songId), {
+      playCount: increment(1),
+    });
+  } catch (error) {
+    console.warn("[incrementPlayCount] Failed:", error);
+  }
+}
+
 async function fetchSongById(songId: string): Promise<FirebaseSong | null> {
   const adminDb = getAdminDb();
 
@@ -181,12 +217,28 @@ export async function getSongById(songId: string): Promise<FirebaseSong | null> 
   return fetchSongById(songId);
 }
 
+// export async function searchSongs(searchQuery: string): Promise<FirebaseSong[]> {
+//   const normalized = searchQuery.trim().toLowerCase();
+//   if (!normalized) return [];
+
+//   const songs = await getAllSongs();
+//   return songs.filter((song) => song.title.toLowerCase().includes(normalized));
+// }
+
+// ── 2. Update searchSongs function ───────────────────────────────
+// Find searchSongs and update the filter to search all three title fields:
+ 
 export async function searchSongs(searchQuery: string): Promise<FirebaseSong[]> {
   const normalized = searchQuery.trim().toLowerCase();
   if (!normalized) return [];
-
+ 
   const songs = await getAllSongs();
-  return songs.filter((song) => song.title.toLowerCase().includes(normalized));
+  return songs.filter((song) => {
+    const inEnglishTitle = (song.englishTitle ?? "").toLowerCase().includes(normalized);
+    const inTeluguTitle = (song.teluguTitle ?? "").toLowerCase().includes(normalized);
+    const inLegacyTitle = (song.title ?? "").toLowerCase().includes(normalized);
+    return inEnglishTitle || inTeluguTitle || inLegacyTitle;
+  });
 }
 
 export async function addSong(songData: CreateSongInput): Promise<string> {
@@ -283,3 +335,5 @@ export async function deleteSong(songId: string): Promise<void> {
 export async function isUsingFirebaseAdmin(): Promise<boolean> {
   return isAdminConfigured();
 }
+
+
