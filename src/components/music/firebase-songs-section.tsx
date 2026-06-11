@@ -192,7 +192,7 @@ export function FirebaseSongsSection({ songs }: FirebaseSongsSectionProps) {
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-4 max-[639px]:grid-cols-1 max-[639px]:place-items-center">
         {liveSongs.map((song) => (
           // <FirebaseSongCard key={song.id} song={song} className="w-full" />
-           <div key={song.id} className="w-full max-w-[370px] sm:max-w-none">
+           <div key={song.id} className="w-full max-w-[350px] sm:max-w-none">
           <FirebaseSongCard song={song} className="w-full" />
         </div>
         ))}
