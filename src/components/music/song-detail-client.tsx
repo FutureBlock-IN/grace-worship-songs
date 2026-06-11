@@ -610,6 +610,7 @@ import { getSongLyricsContent } from "@/lib/song-lyrics";
 import { getSongCoverUrl } from "@/lib/utils";
 import { DEFAULT_SONG_COVER } from "@/config/site";
 import { incrementPlayCount } from "@/lib/firebase-queries";
+import { ShareSongButton } from "./share-song";
 
 type SongDetailClientProps = {
   song: FirebaseSong;
@@ -779,6 +780,13 @@ export function SongDetailClient({ song }: SongDetailClientProps) {
                   YouTube
                 </a>
               )}
+
+               {/* ✅ Share button — add this */}
+  <ShareSongButton
+    songId={song.id}
+    songTitle={englishTitle}
+    teluguTitle={teluguTitle}
+  />
             </div>
           </div>
         </div>
