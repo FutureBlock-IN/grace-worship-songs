@@ -189,12 +189,9 @@ export function FirebaseSongsSection({ songs }: FirebaseSongsSectionProps) {
     <section className="w-full space-y-5">
       <SectionHeader count={liveSongs.length} />
 
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 xl:gap-4 max-[639px]:grid-cols-1 max-[639px]:place-items-center">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {liveSongs.map((song) => (
-          // <FirebaseSongCard key={song.id} song={song} className="w-full" />
-           <div key={song.id} className="w-full max-w-[340px] sm:max-w-none">
-          <FirebaseSongCard song={song} className="w-full" />
-        </div>
+          <FirebaseSongCard key={song.id} song={song} />
         ))}
       </div>
     </section>
