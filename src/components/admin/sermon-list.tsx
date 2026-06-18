@@ -128,7 +128,7 @@ export function SermonList({
                   </p>
                   <div className="mt-1 flex items-center gap-1.5">
                     <span className="inline-flex rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                      {sermon.category}
+                      {sermon.scriptureReference || sermon.speaker || "Sermon"}
                     </span>
                     <span
                       className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${

@@ -24,6 +24,7 @@ export function getRelatedArticles(
   if (!current) return articles.filter((a) => a.id !== currentId).slice(0, limit);
 
   const currentTags = new Set(current.tags.map((t) => t.toLowerCase()));
+  const currentCategory = current.category.trim().toLowerCase();
 
   return articles
     .filter((a) => a.id !== currentId)
@@ -31,7 +32,12 @@ export function getRelatedArticles(
       const sharedTags = article.tags.filter((tag) =>
         currentTags.has(tag.toLowerCase())
       ).length;
-      return { article, score: sharedTags };
+      const categoryMatch =
+        currentCategory &&
+        article.category.trim().toLowerCase() === currentCategory
+          ? 2
+          : 0;
+      return { article, score: sharedTags + categoryMatch };
     })
     .sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;

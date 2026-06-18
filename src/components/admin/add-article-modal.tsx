@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import type { FirebaseArticle } from "@/types/firebase-article";
+import { ARTICLE_CATEGORIES } from "@/types/firebase-article";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,28 +22,52 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useFirebaseAuth } from "@/context/firebase-auth-context";
 import { createArticle, updateArticle } from "@/lib/firebase-article-queries";
+import { isValidYouTubeUrl } from "@/lib/media-url-validation";
 import { notifyIfNewlyPublished } from "@/lib/notify-if-published";
 import { uploadSongFileLocal } from "@/lib/local-upload";
 import { MAX_IMAGE_SIZE_LABEL, validateImageFile } from "@/lib/upload-limits";
 
-const articleSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  shortDescription: z.string().min(1, "Short description is required"),
-  content: z.string().min(1, "Content is required"),
-  author: z.string().min(1, "Author is required"),
-  tags: z.string().optional(),
-  isPublished: z.boolean(),
-});
+const articleSchema = z
+  .object({
+    title: z.string().min(1, "Title is required"),
+    category: z.string().min(1, "Category is required"),
+    shortDescription: z.string().min(1, "Short description is required"),
+    scriptureReference: z.string().optional(),
+    content: z.string().min(1, "Full content is required"),
+    author: z.string().min(1, "Author is required"),
+    tags: z.string().optional(),
+    youtubeUrl: z.string().optional(),
+    featured: z.boolean(),
+    isPublished: z.boolean(),
+  })
+  .superRefine((values, ctx) => {
+    const youtube = values.youtubeUrl?.trim() ?? "";
+    if (youtube && !isValidYouTubeUrl(youtube)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Enter a valid YouTube URL (youtube.com or youtu.be)",
+        path: ["youtubeUrl"],
+      });
+    }
+  });
 
 type ArticleFormValues = z.infer<typeof articleSchema>;
 
@@ -61,6 +86,25 @@ function parseTags(tagsInput?: string): string[] {
     .filter(Boolean);
 }
 
+function tagsToInput(tags?: string[]): string {
+  return tags?.join(", ") ?? "";
+}
+
+function buildArticlePayload(values: ArticleFormValues) {
+  return {
+    title: values.title.trim(),
+    category: values.category.trim(),
+    shortDescription: values.shortDescription.trim(),
+    scriptureReference: values.scriptureReference?.trim() || undefined,
+    content: values.content.trim(),
+    author: values.author.trim(),
+    tags: parseTags(values.tags),
+    youtubeUrl: values.youtubeUrl?.trim() || undefined,
+    featured: values.featured,
+    isPublished: values.isPublished,
+  };
+}
+
 export function AddArticleModal({
   isOpen,
   onClose,
@@ -77,10 +121,14 @@ export function AddArticleModal({
     resolver: zodResolver(articleSchema),
     defaultValues: {
       title: "",
+      category: "Christian Living",
       shortDescription: "",
+      scriptureReference: "",
       content: "",
       author: "",
       tags: "",
+      youtubeUrl: "",
+      featured: false,
       isPublished: false,
     },
   });
@@ -89,20 +137,28 @@ export function AddArticleModal({
     if (initialArticle) {
       form.reset({
         title: initialArticle.title,
+        category: initialArticle.category,
         shortDescription: initialArticle.shortDescription,
+        scriptureReference: initialArticle.scriptureReference ?? "",
         content: initialArticle.content,
         author: initialArticle.author,
-        tags: initialArticle.tags.join(", "),
+        tags: tagsToInput(initialArticle.tags),
+        youtubeUrl: initialArticle.youtubeUrl ?? "",
+        featured: initialArticle.featured,
         isPublished: initialArticle.isPublished,
       });
       setCoverPreview(initialArticle.coverImage ?? "");
     } else {
       form.reset({
         title: "",
+        category: "Christian Living",
         shortDescription: "",
+        scriptureReference: "",
         content: "",
         author: authUser?.displayName ?? "",
         tags: "",
+        youtubeUrl: "",
+        featured: false,
         isPublished: false,
       });
       setCoverPreview("");
@@ -132,21 +188,19 @@ export function AddArticleModal({
       return;
     }
 
+    if (!coverFile && !coverPreview.trim()) {
+      toast.error("Cover image is required");
+      return;
+    }
+
     const createdBy =
       authUser?.email ?? authUser?.displayName ?? authUser?.uid ?? "admin";
-    const tags = parseTags(values.tags);
+    const payload = buildArticlePayload(values);
 
     setLoading(true);
     try {
       if (initialArticle) {
-        await updateArticle(initialArticle.id, {
-          title: values.title.trim(),
-          shortDescription: values.shortDescription.trim(),
-          content: values.content.trim(),
-          author: values.author.trim(),
-          tags,
-          isPublished: values.isPublished,
-        });
+        await updateArticle(initialArticle.id, payload);
 
         let coverImageUrl = initialArticle.coverImage ?? "";
         if (coverFile) {
@@ -165,23 +219,18 @@ export function AddArticleModal({
         await notifyIfNewlyPublished({
           type: "article",
           contentId: initialArticle.id,
-          contentTitle: values.title.trim(),
+          contentTitle: payload.title,
           image: coverImageUrl,
-          isPublished: values.isPublished,
+          isPublished: payload.isPublished,
           wasPublished: initialArticle.isPublished,
         });
 
         toast.success("Article updated successfully");
       } else {
         const articleId = await createArticle({
-          title: values.title.trim(),
-          shortDescription: values.shortDescription.trim(),
-          content: values.content.trim(),
-          author: values.author.trim(),
-          tags,
+          ...payload,
           coverImage: "",
           createdBy,
-          isPublished: values.isPublished,
         });
 
         let coverImageUrl = "";
@@ -201,9 +250,9 @@ export function AddArticleModal({
         await notifyIfNewlyPublished({
           type: "article",
           contentId: articleId,
-          contentTitle: values.title.trim(),
+          contentTitle: payload.title,
           image: coverImageUrl,
-          isPublished: values.isPublished,
+          isPublished: payload.isPublished,
         });
 
         toast.success("Article added successfully");
@@ -228,8 +277,8 @@ export function AddArticleModal({
           <DialogTitle>{initialArticle ? "Edit Article" : "Add Article"}</DialogTitle>
           <DialogDescription>
             {initialArticle
-              ? "Update article content and cover image"
-              : "Create a new worship article"}
+              ? "Update article content, media links, and cover image"
+              : "Publish a new article to Grace Worship Songs"}
           </DialogDescription>
         </DialogHeader>
 
@@ -237,7 +286,7 @@ export function AddArticleModal({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <Card className="border-border/50 shadow-none">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-semibold">Details</CardTitle>
+                <CardTitle className="text-sm font-semibold">Article Details</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -256,6 +305,35 @@ export function AddArticleModal({
 
                 <FormField
                   control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        disabled={loading}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {ARTICLE_CATEGORIES.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="shortDescription"
                   render={({ field }) => (
                     <FormItem>
@@ -263,10 +341,24 @@ export function AddArticleModal({
                       <FormControl>
                         <Textarea
                           placeholder="Brief summary shown on cards..."
-                          rows={2}
+                          rows={3}
                           disabled={loading}
                           {...field}
                         />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="scriptureReference"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Scripture Reference (optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Psalm 23:1" disabled={loading} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -311,10 +403,29 @@ export function AddArticleModal({
                   name="tags"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tags</FormLabel>
+                      <FormLabel>Tags (optional)</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Prayer, Worship, Faith (comma separated)"
+                          disabled={loading}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>Comma-separated tags</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="youtubeUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>YouTube URL (optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="https://youtube.com/watch?v=... or https://youtu.be/..."
                           disabled={loading}
                           {...field}
                         />
@@ -331,7 +442,9 @@ export function AddArticleModal({
                 <CardTitle className="text-sm font-semibold">Cover Image</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <p className="text-xs text-muted-foreground">Max {MAX_IMAGE_SIZE_LABEL}</p>
+                <p className="text-xs text-muted-foreground">
+                  Required · Max {MAX_IMAGE_SIZE_LABEL}
+                </p>
                 <div className="flex gap-4">
                   {coverPreview ? (
                     <div className="relative h-20 w-20 shrink-0">
@@ -370,6 +483,28 @@ export function AddArticleModal({
                 ) : null}
               </CardContent>
             </Card>
+
+            <FormField
+              control={form.control}
+              name="featured"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-between rounded-lg border border-border/50 p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel>Featured Article</FormLabel>
+                    <p className="text-xs text-muted-foreground">
+                      Highlight this article for future homepage features
+                    </p>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={loading}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}

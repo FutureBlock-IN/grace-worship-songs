@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import { ContentAuthRequired } from "@/components/auth/content-auth-required";
 import { ReadingDetailLayout } from "@/components/reading-detail-layout";
+import { SermonMediaSection } from "@/components/sermons/sermon-media-section";
 import { ShareContentButton } from "@/components/share-content-button";
 import { siteConfig } from "@/config/site";
 import { isAuthenticatedServer } from "@/lib/auth-server";
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: SermonPageProps) {
 
   return {
     title: `${sermon.title} | ${siteConfig.name}`,
-    description: sermon.description.slice(0, 160),
+    description: sermon.shortDescription.slice(0, 160),
   };
 }
 
@@ -50,15 +51,24 @@ export default async function SermonPage({ params }: SermonPageProps) {
     <ReadingDetailLayout
       coverUrl={coverUrl}
       coverAlt={sermon.title}
-      category={sermon.category}
+      category={sermon.scriptureReference || undefined}
       title={sermon.title}
       subtitle={sermon.subtitle}
+      shortDescription={sermon.shortDescription}
+      author={sermon.speaker}
       dateCreated={sermon.dateCreated}
-      content={sermon.description}
+      content={sermon.content}
+      beforeContent={
+        <SermonMediaSection
+          title={sermon.title}
+          youtubeUrl={sermon.youtubeUrl}
+          audioUrl={sermon.audioUrl}
+        />
+      }
       headerAction={
         <ShareContentButton
           title={sermon.title}
-          description={sermon.subtitle ?? sermon.description.slice(0, 160)}
+          description={sermon.shortDescription}
           path={`/sermons/${encodeURIComponent(sermon.id)}`}
         />
       }

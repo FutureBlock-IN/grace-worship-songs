@@ -17,7 +17,7 @@ type WorshipTopItemsClientProps = {
 };
 
 function getSermonSubtitle(sermon: FirebaseSermon): string | undefined {
-  return sermon.subtitle?.trim() || sermon.description.trim() || undefined;
+  return sermon.shortDescription?.trim() || sermon.subtitle?.trim() || undefined;
 }
 
 export function WorshipTopItemsClient({

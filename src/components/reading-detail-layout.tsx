@@ -14,11 +14,13 @@ type ReadingDetailLayoutProps = {
   category?: string;
   title: string;
   subtitle?: string;
+  shortDescription?: string;
   dateCreated: number;
   content: string;
   author?: string;
   authorImage?: string;
   headerAction?: ReactNode;
+  beforeContent?: ReactNode;
   footer?: ReactNode;
 };
 
@@ -28,11 +30,13 @@ export function ReadingDetailLayout({
   category,
   title,
   subtitle,
+  shortDescription,
   dateCreated,
   content,
   author,
   authorImage,
   headerAction,
+  beforeContent,
   footer,
 }: ReadingDetailLayoutProps) {
   const authorName = author?.trim();
@@ -69,6 +73,12 @@ export function ReadingDetailLayout({
               </p>
             ) : null}
 
+            {shortDescription ? (
+              <p className="font-sans text-sm leading-relaxed text-muted-foreground/90">
+                {shortDescription}
+              </p>
+            ) : null}
+
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               {authorName ? (
                 <div className="flex items-center gap-2">
@@ -102,6 +112,10 @@ export function ReadingDetailLayout({
           </div>
         </div>
       </div>
+
+      {beforeContent ? (
+        <div className="space-y-6">{beforeContent}</div>
+      ) : null}
 
       <div className="rounded-2xl border border-border/40 bg-card/30 px-4 py-6 sm:px-8 sm:py-8">
         <ReadingProse content={content} />
