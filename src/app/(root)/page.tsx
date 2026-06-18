@@ -1,3 +1,4 @@
+import { HomeAdminFab } from "@/components/home-admin-fab";
 import { HomeProfileSection } from "@/components/home-profile-section";
 import { WorshipCollectionSection } from "@/components/worship/worship-collection-section";
 import { siteConfig } from "@/config/site";
@@ -34,6 +35,7 @@ export default async function HomePage() {
   return (
     <div className="space-y-5 sm:space-y-6">
       <HomeProfileSection />
+      <HomeAdminFab />
       <WorshipCollectionSection
         songs={songs}
         ceremonies={ceremonies}

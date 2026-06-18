@@ -44,9 +44,9 @@ export function HomeProfileSection() {
 
   return (
     <section className="relative overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm">
-      <div className="flex flex-col items-stretch gap-3 p-3 sm:flex-row sm:items-center sm:gap-5 sm:p-4">
+      <div className="flex flex-col sm:flex-row sm:items-stretch">
         {/* ── Left: Profile ── */}
-        <div className="flex items-center gap-3 sm:shrink-0 md:min-w-[260px]">
+        <div className="flex items-center gap-3 p-4 sm:min-w-[240px] sm:max-w-xs sm:shrink-0 md:min-w-[260px] lg:p-5">
           <div className="relative shrink-0">
             <ImageWithFallback
               src={siteConfig.profile.image || "/images/logo.png"}
@@ -59,14 +59,14 @@ export function HomeProfileSection() {
             />
           </div>
 
-          <div className="min-w-0">
+          <div className="min-w-0 text-left">
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/60">
               {siteConfig.name}
             </p>
             <h1 className="truncate font-heading text-sm font-bold leading-snug text-foreground sm:text-base">
               {siteConfig.profile.name}
             </h1>
-            <p className="mt-0.5 truncate text-xs text-muted-foreground">
+            <p className="mt-0.5 truncate text-left text-xs text-muted-foreground">
               Christian Worship Music &amp; Lyrics
             </p>
           </div>
@@ -74,15 +74,15 @@ export function HomeProfileSection() {
 
         {/* Divider */}
         <div
-          className="h-px w-full bg-border/50 sm:h-12 sm:w-px"
+          className="mx-4 h-px shrink-0 bg-border/40 sm:mx-0 sm:h-auto sm:w-px sm:self-stretch"
           aria-hidden
         />
 
         {/* ── Right: Verse of the Day ── */}
-        <div className="relative flex min-w-0 flex-1 flex-col justify-center">
+        <div className="relative flex min-w-0 flex-1 flex-col justify-center p-4 pt-0 text-left sm:p-5 sm:pl-6">
           <div
             aria-hidden
-            className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 opacity-[0.05]"
+            className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 opacity-[0.05]"
           >
             <svg
               width="56"
@@ -96,7 +96,7 @@ export function HomeProfileSection() {
             </svg>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/60">
               Verse of the Day
             </p>
@@ -104,7 +104,7 @@ export function HomeProfileSection() {
               {verse.reference}
             </span>
           </div>
-          <blockquote className="mt-1 line-clamp-2 font-script text-sm leading-relaxed text-foreground/80 sm:text-base">
+          <blockquote className="mt-1.5 line-clamp-2 font-script text-sm italic leading-relaxed text-foreground/80 sm:text-base">
             &ldquo;{verse.text}&rdquo;
           </blockquote>
         </div>

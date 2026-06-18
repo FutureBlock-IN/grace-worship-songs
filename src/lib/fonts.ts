@@ -1,4 +1,5 @@
 import { Dancing_Script, Inter, JetBrains_Mono } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
 import localFont from "next/font/local";
 
 /* -----------------------------------------------------------------------------------------------
@@ -9,6 +10,8 @@ export const fontSans = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
 });
+
+export const fontGeist = GeistSans;
 
 export const fontMono = JetBrains_Mono({
   variable: "--font-mono",

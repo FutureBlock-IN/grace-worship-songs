@@ -1,25 +1,24 @@
 "use client";
 
 import React from "react";
-import { ChevronRight } from "lucide-react";
 
 import type { FirebaseArticle } from "@/types/firebase-article";
 import type { FirebaseCeremony } from "@/types/firebase-ceremony";
 import type { FirebaseSong } from "@/types/firebase-song";
 
-import { ProtectedContentLink } from "@/components/auth/protected-content-link";
-import { ImageWithFallback } from "@/components/image-with-fallback";
-import { FirebaseArticleCard } from "@/components/worship/firebase-article-card";
-import { FirebaseCeremonyCard } from "@/components/worship/firebase-ceremony-card";
-import { DEFAULT_SONG_COVER } from "@/config/site";
 import { useEffectiveWorshipCollectionTab } from "@/hooks/use-effective-worship-collection-tab";
-import { cn, getSongCoverUrl } from "@/lib/utils";
+
+import { SearchResultRow } from "./search-result-row";
 
 type WorshipTopItemsClientProps = {
   songs: FirebaseSong[];
   ceremonies: FirebaseCeremony[];
   articles: FirebaseArticle[];
 };
+
+function getCeremonySubtitle(ceremony: FirebaseCeremony): string | undefined {
+  return ceremony.subtitle?.trim() || ceremony.description.trim() || undefined;
+}
 
 export function WorshipTopItemsClient({
   songs,
@@ -59,55 +58,36 @@ export function WorshipTopItemsClient({
       <p className="font-heading text-lg font-semibold">{sectionLabel}</p>
       <div className="flex max-h-96 w-full flex-col gap-2 overflow-y-auto pr-2">
         {activeTab === "songs" &&
-          songs.map((song) => {
-            const englishTitle = song.englishTitle ?? song.title ?? "";
-            const teluguTitle = song.teluguTitle ?? "";
-            const songHref = `/songs/${encodeURIComponent(song.id)}`;
-            const coverUrl = getSongCoverUrl(song.imageUrl);
-
-            return (
-              <ProtectedContentLink
-                key={song.id}
-                href={songHref}
-                className={cn(
-                  "group relative flex w-full flex-shrink-0 items-center gap-3 overflow-hidden rounded-lg border border-border/50 bg-card/40 px-3 py-2.5 transition-all duration-200",
-                  "hover:border-border/80 hover:bg-card/60 hover:shadow-sm"
-                )}
-              >
-                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md">
-                  <ImageWithFallback
-                    src={coverUrl}
-                    fallback={DEFAULT_SONG_COVER}
-                    width={64}
-                    height={64}
-                    sizes="64px"
-                    alt={englishTitle}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-                  <h3 className="line-clamp-2 text-sm font-bold leading-tight">
-                    {englishTitle}
-                  </h3>
-                  {teluguTitle ? (
-                    <p className="line-clamp-1 text-xs text-muted-foreground">
-                      {teluguTitle}
-                    </p>
-                  ) : null}
-                </div>
-                <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
-              </ProtectedContentLink>
-            );
-          })}
+          songs.map((song) => (
+            <SearchResultRow
+              key={song.id}
+              href={`/songs/${encodeURIComponent(song.id)}`}
+              title={song.englishTitle ?? song.title ?? ""}
+              subtitle={song.teluguTitle}
+              coverUrl={song.imageUrl}
+            />
+          ))}
 
         {activeTab === "ceremonies" &&
           ceremonies.map((ceremony) => (
-            <FirebaseCeremonyCard key={ceremony.id} ceremony={ceremony} />
+            <SearchResultRow
+              key={ceremony.id}
+              href={`/ceremonies/${encodeURIComponent(ceremony.id)}`}
+              title={ceremony.title}
+              subtitle={getCeremonySubtitle(ceremony)}
+              coverUrl={ceremony.coverImage}
+            />
           ))}
 
         {activeTab === "articles" &&
           articles.map((article) => (
-            <FirebaseArticleCard key={article.id} article={article} />
+            <SearchResultRow
+              key={article.id}
+              href={`/articles/${encodeURIComponent(article.id)}`}
+              title={article.title}
+              subtitle={article.shortDescription}
+              coverUrl={article.coverImage}
+            />
           ))}
       </div>
     </div>

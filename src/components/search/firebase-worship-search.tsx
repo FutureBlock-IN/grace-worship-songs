@@ -1,25 +1,27 @@
 "use client";
 
 import React from "react";
-import { Loader2, ChevronRight } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import type { FirebaseArticle } from "@/types/firebase-article";
 import type { FirebaseCeremony } from "@/types/firebase-ceremony";
 import type { FirebaseSong } from "@/types/firebase-song";
 
-import { ImageWithFallback } from "@/components/image-with-fallback";
-import { ProtectedContentLink } from "@/components/auth/protected-content-link";
-import { DEFAULT_SONG_COVER } from "@/config/site";
 import { useEffectiveWorshipCollectionTab } from "@/hooks/use-effective-worship-collection-tab";
-import { getContentTypeLabel } from "@/lib/worship-collection";
 import { searchArticles } from "@/lib/firebase-article-queries";
 import { searchCeremonies } from "@/lib/firebase-ceremony-queries";
 import { searchSongs } from "@/lib/firebase-queries";
-import { cn, getSongCoverUrl } from "@/lib/utils";
+import { getContentTypeLabel } from "@/lib/worship-collection";
+
+import { SearchResultRow } from "./search-result-row";
 
 type FirebaseWorshipSearchProps = {
   query: string;
 };
+
+function getCeremonySubtitle(ceremony: FirebaseCeremony): string | undefined {
+  return ceremony.subtitle?.trim() || ceremony.description.trim() || undefined;
+}
 
 export function FirebaseWorshipSearch({ query }: FirebaseWorshipSearchProps) {
   const { activeTab } = useEffectiveWorshipCollectionTab();
@@ -103,21 +105,15 @@ export function FirebaseWorshipSearch({ query }: FirebaseWorshipSearchProps) {
 
       <div className="flex max-h-96 w-full flex-col gap-2 overflow-y-auto pr-2">
         {activeTab === "songs" &&
-          songs.map((song) => {
-            const englishTitle = song.englishTitle ?? song.title ?? "";
-            const teluguTitle = song.teluguTitle ?? "";
-            const href = `/songs/${encodeURIComponent(song.id)}`;
-
-            return (
-              <SearchResultRow
-                key={song.id}
-                href={href}
-                title={englishTitle}
-                subtitle={teluguTitle}
-                coverUrl={getSongCoverUrl(song.imageUrl)}
-              />
-            );
-          })}
+          songs.map((song) => (
+            <SearchResultRow
+              key={song.id}
+              href={`/songs/${encodeURIComponent(song.id)}`}
+              title={song.englishTitle ?? song.title ?? ""}
+              subtitle={song.teluguTitle}
+              coverUrl={song.imageUrl}
+            />
+          ))}
 
         {activeTab === "ceremonies" &&
           ceremonies.map((ceremony) => (
@@ -125,8 +121,8 @@ export function FirebaseWorshipSearch({ query }: FirebaseWorshipSearchProps) {
               key={ceremony.id}
               href={`/ceremonies/${encodeURIComponent(ceremony.id)}`}
               title={ceremony.title}
-              subtitle={ceremony.subtitle}
-              coverUrl={getSongCoverUrl(ceremony.coverImage)}
+              subtitle={getCeremonySubtitle(ceremony)}
+              coverUrl={ceremony.coverImage}
             />
           ))}
 
@@ -137,67 +133,10 @@ export function FirebaseWorshipSearch({ query }: FirebaseWorshipSearchProps) {
               href={`/articles/${encodeURIComponent(article.id)}`}
               title={article.title}
               subtitle={article.shortDescription}
-              meta={article.author}
-              coverUrl={getSongCoverUrl(article.coverImage)}
+              coverUrl={article.coverImage}
             />
           ))}
       </div>
     </div>
-  );
-}
-
-function SearchResultRow({
-  href,
-  title,
-  subtitle,
-  meta,
-  coverUrl,
-}: {
-  href: string;
-  title: string;
-  subtitle?: string;
-  meta?: string;
-  coverUrl: string;
-}) {
-  return (
-    <ProtectedContentLink
-      href={href}
-      className={cn(
-        "group relative flex w-full flex-shrink-0 items-center gap-3 overflow-hidden rounded-lg border border-border/50 bg-card/40 px-3 py-2.5 transition-all duration-200",
-        "hover:border-border/80 hover:bg-card/60 hover:shadow-sm"
-      )}
-    >
-      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md">
-        <ImageWithFallback
-          src={coverUrl}
-          fallback={DEFAULT_SONG_COVER}
-          width={64}
-          height={64}
-          sizes="64px"
-          alt={title}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
-      </div>
-
-      <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-        <h3 className="line-clamp-2 text-sm font-bold leading-tight text-foreground transition-colors duration-200 group-hover:text-primary">
-          {title}
-        </h3>
-        {subtitle ? (
-          <p className="line-clamp-1 text-xs leading-tight text-muted-foreground">
-            {subtitle}
-          </p>
-        ) : null}
-        {meta ? (
-          <p className="line-clamp-1 text-[11px] font-medium text-primary/70">
-            {meta}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="ml-auto shrink-0 text-muted-foreground transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-primary">
-        <ChevronRight className="h-5 w-5" />
-      </div>
-    </ProtectedContentLink>
   );
 }

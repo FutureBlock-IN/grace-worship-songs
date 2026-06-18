@@ -5,6 +5,7 @@ export type FirebaseArticle = {
   content: string;
   coverImage?: string;
   author: string;
+  authorImage?: string;
   tags: string[];
   dateCreated: number;
   createdBy: string;

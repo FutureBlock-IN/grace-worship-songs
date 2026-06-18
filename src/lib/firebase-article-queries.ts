@@ -52,6 +52,8 @@ function normalizeArticle(
     content: String(data.content ?? ""),
     coverImage: rawCover || undefined,
     author: String(data.author ?? ""),
+    authorImage:
+      String(data.authorImage ?? data.authorPhoto ?? "").trim() || undefined,
     tags: normalizeTags(data.tags),
     dateCreated: toMillis(data.dateCreated ?? data.createdAt),
     createdBy: String(data.createdBy ?? ""),
