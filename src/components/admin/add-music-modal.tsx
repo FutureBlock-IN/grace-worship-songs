@@ -542,6 +542,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { addSong, updateSong } from "@/lib/firebase-queries";
+import { notifyIfNewlyPublished } from "@/lib/notify-if-published";
 import { uploadSongFileLocal } from "@/lib/local-upload";
 import {
   MAX_AUDIO_SIZE_LABEL,
@@ -723,6 +724,14 @@ export function AddMusicModal({ isOpen, onClose, onSave, initialSong }: AddMusic
             (p) => setUploadProgress((prev) => ({ ...prev, audio: p })));
         }
         if (Object.keys(updates).length > 0) await updateSong(songId, updates);
+
+        await notifyIfNewlyPublished({
+          type: "song",
+          contentId: songId,
+          contentTitle: formData.englishTitle.trim() || titleForLegacy,
+          image: updates.imageUrl ?? "",
+          isPublished: true,
+        });
 
         toast.success("Song added successfully");
       }

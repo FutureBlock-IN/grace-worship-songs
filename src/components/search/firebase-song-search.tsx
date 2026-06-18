@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { Loader2, ChevronRight } from "lucide-react";
 
 import type { FirebaseSong } from "@/types/firebase-song";
 
+import { ProtectedContentLink } from "@/components/auth/protected-content-link";
 import { ImageWithFallback } from "@/components/image-with-fallback";
 import { searchSongs } from "@/lib/firebase-queries";
 import { DEFAULT_SONG_COVER } from "@/config/site";
@@ -64,7 +64,7 @@ export function FirebaseSongSearch({ query }: FirebaseSongSearchProps) {
           const coverUrl = getSongCoverUrl(song.imageUrl);
 
           return (
-            <Link
+            <ProtectedContentLink
               key={song.id}
               href={songHref}
               className={cn(
@@ -126,7 +126,7 @@ export function FirebaseSongSearch({ query }: FirebaseSongSearchProps) {
               <div className="ml-auto shrink-0 text-muted-foreground transition-all duration-200 group-hover:text-primary group-hover:translate-x-0.5">
                 <ChevronRight className="h-5 w-5" />
               </div>
-            </Link>
+            </ProtectedContentLink>
           );
         })}
       </div>

@@ -231,7 +231,7 @@ export async function getSongById(songId: string): Promise<FirebaseSong | null> 
 export async function searchSongs(searchQuery: string): Promise<FirebaseSong[]> {
   const normalized = searchQuery.trim().toLowerCase();
   if (!normalized) return [];
- 
+
   const songs = await getAllSongs();
   return songs.filter((song) => {
     const inEnglishTitle = (song.englishTitle ?? "").toLowerCase().includes(normalized);

@@ -15,11 +15,10 @@ import * as fonts from "@/lib/fonts";
 import { absoluteUrl, cn } from "@/lib/utils";
 
 type RootLayoutProps = {
-  modal: React.ReactNode;
   children: React.ReactNode;
 };
 
-export default async function RootLayout({ modal, children }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
   const cookieStore = await cookies();
   const themeConfig = cookieStore.get("theme-config");
 
@@ -44,7 +43,6 @@ export default async function RootLayout({ modal, children }: RootLayoutProps) {
         >
           <Providers>
             {children}
-            {modal}
           </Providers>
 
           <TailwindIndicator />

@@ -16,7 +16,7 @@ const mobileNavItems = [
   { label: "Home", icon: Home, href: "/" },
   { label: "Search", icon: Search, href: "/search" },
   { label: "Browse", icon: Compass, href: "/browse" },
-  { label: "Login", icon: User2, href: "/login" },
+  { label: "Login", icon: User2, href: "/signin" },
   { label: "Settings", icon: Cog, href: "/settings" },
 ];
 

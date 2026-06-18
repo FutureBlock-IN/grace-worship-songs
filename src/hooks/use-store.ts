@@ -58,3 +58,11 @@ const isTyping = atom(false);
 export function useIsTyping() {
   return useAtom(isTyping, { store });
 }
+
+export type WorshipCollectionTab = "songs" | "ceremonies" | "articles";
+
+const worshipCollectionTabAtom = atom<WorshipCollectionTab>("songs");
+
+export function useWorshipCollectionTab() {
+  return useAtom(worshipCollectionTabAtom, { store });
+}

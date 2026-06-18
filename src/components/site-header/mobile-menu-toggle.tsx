@@ -131,7 +131,6 @@
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { Menu, X } from "lucide-react";
-import { ThemeToggleGroup } from "../site-footer/theme-toggle-group";
 
 export function MobileMenuToggle() {
   const [open, setOpen] = useState(false);
@@ -186,15 +185,6 @@ export function MobileMenuToggle() {
               <span className="flex h-6 w-6 items-center justify-center rounded bg-primary/10 text-sm">🔒</span>
               Privacy
             </Link>
-
-            {/* Divider */}
-            <div className="my-1 border-t border-border/60" />
-
-            {/* Theme toggle row */}
-            <div className="flex items-center justify-between rounded-md px-3 py-2">
-              <span className="text-sm font-medium text-muted-foreground">Theme</span>
-              <ThemeToggleGroup />
-            </div>
           </nav>
         </div>
       )}

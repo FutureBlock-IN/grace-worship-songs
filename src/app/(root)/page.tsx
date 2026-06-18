@@ -1,6 +1,8 @@
 import { HomeProfileSection } from "@/components/home-profile-section";
-import { FirebaseSongsSection } from "@/components/music/firebase-songs-section";
+import { WorshipCollectionSection } from "@/components/worship/worship-collection-section";
 import { siteConfig } from "@/config/site";
+import { getPublishedArticles } from "@/lib/firebase-article-queries";
+import { getPublishedCeremonies } from "@/lib/firebase-ceremony-queries";
 import { getAllSongs } from "@/lib/firebase-queries";
 
 export const dynamic = "force-dynamic";
@@ -23,12 +25,20 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-  const songs = await getAllSongs();
+  const [songs, ceremonies, articles] = await Promise.all([
+    getAllSongs(),
+    getPublishedCeremonies(),
+    getPublishedArticles(),
+  ]);
 
   return (
     <div className="space-y-5 sm:space-y-6">
       <HomeProfileSection />
-      <FirebaseSongsSection songs={songs} />
+      <WorshipCollectionSection
+        songs={songs}
+        ceremonies={ceremonies}
+        articles={articles}
+      />
     </div>
   );
 }

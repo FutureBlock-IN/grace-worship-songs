@@ -1,20 +1,33 @@
 /**
- * An array of routes that are used for authentication
- * These routes will redirect logged in users to `DEFAULT_LOGIN_REDIRECT`
+ * Public routes — accessible without authentication
  */
-export const authRoutes = ["/login", "/signup", "/reset-password"];
+export const publicRoutes = ["/", "/about", "/privacy", "/signin", "/signup", "/forgot-password"];
 
 /**
- * The default redirect path after a user logs in
+ * Auth routes — redirect authenticated users to home
+ */
+export const authRoutes = ["/signin", "/signup", "/forgot-password"];
+
+/**
+ * Protected routes — require authentication
+ */
+export const protectedRoutes = ["/groups", "/profile", "/events", "/dashboard"];
+
+/**
+ * Content detail routes — require authentication to view (home browsing stays public)
+ */
+export const contentDetailPrefixes = ["/songs", "/articles", "/ceremonies"];
+
+/**
+ * Admin-only routes — require super-admin email (temporary testing mode)
+ */
+export const adminRoutes = [
+  "/admin-worship-panel",
+  "/admin-panel",
+  "/admin",
+];
+
+/**
+ * Default redirect after login
  */
 export const DEFAULT_LOGIN_REDIRECT = "/";
-
-/**
- * An array of main app routes for the application
- */
-export const appRoutes = ["/", "/search", "/privacy"];
-
-/**
- * An array of user routes for the application
- */
-export const userRoutes = ["/me", "/settings"];
