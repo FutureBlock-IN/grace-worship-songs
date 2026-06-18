@@ -1,4 +1,4 @@
-export type NotificationContentType = "song" | "article" | "ceremony";
+export type NotificationContentType = "song" | "article" | "sermon";
 
 export type FirebaseNotification = {
   id: string;
@@ -11,7 +11,7 @@ export type FirebaseNotification = {
   contentTitle: string;
   /** Optional thumbnail image URL for the related content. */
   image?: string;
-  /** ID of the related song/article/ceremony. */
+  /** ID of the related song/article/sermon. */
   contentId: string;
   createdAt: number;
 };

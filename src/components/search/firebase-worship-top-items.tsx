@@ -3,7 +3,7 @@
 import React from "react";
 
 import type { FirebaseArticle } from "@/types/firebase-article";
-import type { FirebaseCeremony } from "@/types/firebase-ceremony";
+import type { FirebaseSermon } from "@/types/firebase-sermon";
 import type { FirebaseSong } from "@/types/firebase-song";
 
 import { useEffectiveWorshipCollectionTab } from "@/hooks/use-effective-worship-collection-tab";
@@ -12,17 +12,17 @@ import { SearchResultRow } from "./search-result-row";
 
 type WorshipTopItemsClientProps = {
   songs: FirebaseSong[];
-  ceremonies: FirebaseCeremony[];
+  sermons: FirebaseSermon[];
   articles: FirebaseArticle[];
 };
 
-function getCeremonySubtitle(ceremony: FirebaseCeremony): string | undefined {
-  return ceremony.subtitle?.trim() || ceremony.description.trim() || undefined;
+function getSermonSubtitle(sermon: FirebaseSermon): string | undefined {
+  return sermon.subtitle?.trim() || sermon.description.trim() || undefined;
 }
 
 export function WorshipTopItemsClient({
   songs,
-  ceremonies,
+  sermons,
   articles,
 }: WorshipTopItemsClientProps) {
   const { activeTab } = useEffectiveWorshipCollectionTab();
@@ -30,15 +30,15 @@ export function WorshipTopItemsClient({
   const sectionLabel =
     activeTab === "songs"
       ? "Popular Songs"
-      : activeTab === "ceremonies"
-        ? "Recent Ceremonies"
+      : activeTab === "sermons"
+        ? "Recent Sermons"
         : "Recent Articles";
 
   const hasItems =
     activeTab === "songs"
       ? songs.length > 0
-      : activeTab === "ceremonies"
-        ? ceremonies.length > 0
+      : activeTab === "sermons"
+        ? sermons.length > 0
         : articles.length > 0;
 
   if (!hasItems) {
@@ -46,8 +46,8 @@ export function WorshipTopItemsClient({
       <div className="py-4 text-center text-xs text-muted-foreground">
         {activeTab === "songs"
           ? "No songs yet"
-          : activeTab === "ceremonies"
-            ? "No ceremonies yet"
+          : activeTab === "sermons"
+            ? "No sermons yet"
             : "No articles yet"}
       </div>
     );
@@ -68,14 +68,14 @@ export function WorshipTopItemsClient({
             />
           ))}
 
-        {activeTab === "ceremonies" &&
-          ceremonies.map((ceremony) => (
+        {activeTab === "sermons" &&
+          sermons.map((sermon) => (
             <SearchResultRow
-              key={ceremony.id}
-              href={`/ceremonies/${encodeURIComponent(ceremony.id)}`}
-              title={ceremony.title}
-              subtitle={getCeremonySubtitle(ceremony)}
-              coverUrl={ceremony.coverImage}
+              key={sermon.id}
+              href={`/sermons/${encodeURIComponent(sermon.id)}`}
+              title={sermon.title}
+              subtitle={getSermonSubtitle(sermon)}
+              coverUrl={sermon.coverImage}
             />
           ))}
 

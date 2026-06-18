@@ -43,7 +43,7 @@ function NotificationTypeIcon({
   switch (type) {
     case "article":
       return <BookOpen className={className} aria-hidden />;
-    case "ceremony":
+    case "sermon":
       return <Church className={className} aria-hidden />;
     default:
       return <Music className={className} aria-hidden />;

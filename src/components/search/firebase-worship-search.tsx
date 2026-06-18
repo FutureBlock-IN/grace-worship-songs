@@ -4,12 +4,12 @@ import React from "react";
 import { Loader2 } from "lucide-react";
 
 import type { FirebaseArticle } from "@/types/firebase-article";
-import type { FirebaseCeremony } from "@/types/firebase-ceremony";
+import type { FirebaseSermon } from "@/types/firebase-sermon";
 import type { FirebaseSong } from "@/types/firebase-song";
 
 import { useEffectiveWorshipCollectionTab } from "@/hooks/use-effective-worship-collection-tab";
 import { searchArticles } from "@/lib/firebase-article-queries";
-import { searchCeremonies } from "@/lib/firebase-ceremony-queries";
+import { searchSermons } from "@/lib/firebase-sermon-queries";
 import { searchSongs } from "@/lib/firebase-queries";
 import { getContentTypeLabel } from "@/lib/worship-collection";
 
@@ -19,14 +19,14 @@ type FirebaseWorshipSearchProps = {
   query: string;
 };
 
-function getCeremonySubtitle(ceremony: FirebaseCeremony): string | undefined {
-  return ceremony.subtitle?.trim() || ceremony.description.trim() || undefined;
+function getSermonSubtitle(sermon: FirebaseSermon): string | undefined {
+  return sermon.subtitle?.trim() || sermon.description.trim() || undefined;
 }
 
 export function FirebaseWorshipSearch({ query }: FirebaseWorshipSearchProps) {
   const { activeTab } = useEffectiveWorshipCollectionTab();
   const [songs, setSongs] = React.useState<FirebaseSong[]>([]);
-  const [ceremonies, setCeremonies] = React.useState<FirebaseCeremony[]>([]);
+  const [sermons, setSermons] = React.useState<FirebaseSermon[]>([]);
   const [articles, setArticles] = React.useState<FirebaseArticle[]>([]);
   const [loading, setLoading] = React.useState(false);
 
@@ -34,7 +34,7 @@ export function FirebaseWorshipSearch({ query }: FirebaseWorshipSearchProps) {
     (async () => {
       if (!query.trim()) {
         setSongs([]);
-        setCeremonies([]);
+        setSermons([]);
         setArticles([]);
         return;
       }
@@ -42,21 +42,21 @@ export function FirebaseWorshipSearch({ query }: FirebaseWorshipSearchProps) {
       setLoading(true);
       try {
         if (activeTab === "songs") {
-          setCeremonies([]);
+          setSermons([]);
           setArticles([]);
           setSongs(await searchSongs(query));
-        } else if (activeTab === "ceremonies") {
+        } else if (activeTab === "sermons") {
           setSongs([]);
           setArticles([]);
-          setCeremonies(await searchCeremonies(query));
+          setSermons(await searchSermons(query));
         } else {
           setSongs([]);
-          setCeremonies([]);
+          setSermons([]);
           setArticles(await searchArticles(query));
         }
       } catch {
         setSongs([]);
-        setCeremonies([]);
+        setSermons([]);
         setArticles([]);
       } finally {
         setLoading(false);
@@ -78,16 +78,16 @@ export function FirebaseWorshipSearch({ query }: FirebaseWorshipSearchProps) {
   const hasResults =
     activeTab === "songs"
       ? songs.length > 0
-      : activeTab === "ceremonies"
-        ? ceremonies.length > 0
+      : activeTab === "sermons"
+        ? sermons.length > 0
         : articles.length > 0;
 
   if (!hasResults) {
     const emptyMessage =
       activeTab === "songs"
         ? "No Songs Found"
-        : activeTab === "ceremonies"
-          ? "No Ceremonies Found"
+        : activeTab === "sermons"
+          ? "No Sermons Found"
           : "No Articles Found";
 
     return (
@@ -115,14 +115,14 @@ export function FirebaseWorshipSearch({ query }: FirebaseWorshipSearchProps) {
             />
           ))}
 
-        {activeTab === "ceremonies" &&
-          ceremonies.map((ceremony) => (
+        {activeTab === "sermons" &&
+          sermons.map((sermon) => (
             <SearchResultRow
-              key={ceremony.id}
-              href={`/ceremonies/${encodeURIComponent(ceremony.id)}`}
-              title={ceremony.title}
-              subtitle={getCeremonySubtitle(ceremony)}
-              coverUrl={ceremony.coverImage}
+              key={sermon.id}
+              href={`/sermons/${encodeURIComponent(sermon.id)}`}
+              title={sermon.title}
+              subtitle={getSermonSubtitle(sermon)}
+              coverUrl={sermon.coverImage}
             />
           ))}
 

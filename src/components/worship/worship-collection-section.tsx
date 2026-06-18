@@ -3,26 +3,26 @@
 import React from "react";
 
 import type { FirebaseArticle } from "@/types/firebase-article";
-import type { FirebaseCeremony } from "@/types/firebase-ceremony";
+import type { FirebaseSermon } from "@/types/firebase-sermon";
 import type { FirebaseSong } from "@/types/firebase-song";
 
 import { ArticlesTabContent } from "@/components/worship/articles-tab-content";
-import { CeremoniesTabContent } from "@/components/worship/ceremonies-tab-content";
+import { SermonsTabContent } from "@/components/worship/sermons-tab-content";
 import { SongsTabContent } from "@/components/worship/songs-tab-content";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useWorshipCollectionTab } from "@/hooks/use-store";
 
-export type WorshipCollectionTab = "songs" | "ceremonies" | "articles";
+export type WorshipCollectionTab = "songs" | "sermons" | "articles";
 
 type WorshipCollectionSectionProps = {
   songs: FirebaseSong[];
-  ceremonies: FirebaseCeremony[];
+  sermons: FirebaseSermon[];
   articles: FirebaseArticle[];
 };
 
 export function WorshipCollectionSection({
   songs,
-  ceremonies,
+  sermons,
   articles,
 }: WorshipCollectionSectionProps) {
   const [activeTab, setActiveTab] = useWorshipCollectionTab();
@@ -53,10 +53,10 @@ export function WorshipCollectionSection({
             Songs
           </TabsTrigger>
           <TabsTrigger
-            value="ceremonies"
+            value="sermons"
             className="rounded-lg px-4 py-2 text-xs font-semibold sm:text-sm data-[state=active]:bg-background data-[state=active]:shadow-sm"
           >
-            Ceremonies
+            Sermons
           </TabsTrigger>
           <TabsTrigger
             value="articles"
@@ -70,8 +70,8 @@ export function WorshipCollectionSection({
           <SongsTabContent initialSongs={songs} />
         </TabsContent>
 
-        <TabsContent value="ceremonies" className="mt-5 focus-visible:outline-none">
-          <CeremoniesTabContent initialCeremonies={ceremonies} />
+        <TabsContent value="sermons" className="mt-5 focus-visible:outline-none">
+          <SermonsTabContent initialSermons={sermons} />
         </TabsContent>
 
         <TabsContent value="articles" className="mt-5 focus-visible:outline-none">

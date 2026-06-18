@@ -13,7 +13,7 @@ const bodyClassName =
   "text-[15px] font-normal leading-[1.8] text-foreground/75 sm:text-base";
 
 /**
- * Long-form reading body for articles & ceremonies.
+ * Long-form reading body for articles & sermons.
  */
 export function ReadingProse({ content, className }: ReadingProseProps) {
   const blocks = parseReadingContent(content);

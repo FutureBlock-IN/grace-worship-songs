@@ -9,7 +9,7 @@ function getCountLabel(title: string, count: number): string {
       ? "song"
       : title === "Articles"
         ? "article"
-        : "ceremony";
+        : "sermon";
   return `${count} ${count === 1 ? singular : `${singular}s`}`;
 }
 

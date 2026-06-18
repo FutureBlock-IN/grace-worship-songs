@@ -16,7 +16,7 @@ export const protectedRoutes = ["/groups", "/profile", "/events", "/dashboard"];
 /**
  * Content detail routes — require authentication to view (home browsing stays public)
  */
-export const contentDetailPrefixes = ["/songs", "/articles", "/ceremonies"];
+export const contentDetailPrefixes = ["/songs", "/articles", "/sermons"];
 
 /**
  * Admin-only routes — require super-admin email (temporary testing mode)

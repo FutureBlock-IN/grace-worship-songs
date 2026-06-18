@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Plus,
@@ -14,20 +14,26 @@ import { toast } from "sonner";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
 import type { FirebaseArticle } from "@/types/firebase-article";
-import type { FirebaseCeremony } from "@/types/firebase-ceremony";
+import type { FirebaseSermon } from "@/types/firebase-sermon";
 import type { FirebaseSong } from "@/types/firebase-song";
 
 import { AddArticleModal } from "@/components/admin/add-article-modal";
-import { AddCeremonyModal } from "@/components/admin/add-ceremony-modal";
+import { AddSermonModal } from "@/components/admin/add-sermon-modal";
 import { AddMusicModal } from "@/components/admin/add-music-modal";
 import { ArticleList } from "@/components/admin/article-list";
-import { CeremonyList } from "@/components/admin/ceremony-list";
+import { SermonList } from "@/components/admin/sermon-list";
 import { MusicList } from "@/components/admin/music-list";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { db } from "@/lib/firebase";
+import {
+  LEGACY_SERMONS_COLLECTION,
+  SERMONS_COLLECTION,
+  mergeSermonsById,
+  normalizeSermonFromFirestore,
+} from "@/lib/sermon-firestore";
 
-type AdminTab = "songs" | "ceremonies" | "articles";
+type AdminTab = "songs" | "sermons" | "articles";
 
 function toMillis(value: unknown): number {
   if (
@@ -41,7 +47,7 @@ function toMillis(value: unknown): number {
 }
 
 function parseAdminTab(value: string | null): AdminTab {
-  if (value === "ceremonies" || value === "articles") return value;
+  if (value === "sermons" || value === "articles") return value;
   return "songs";
 }
 
@@ -56,20 +62,20 @@ export default function AdminPage() {
   }, [searchParams]);
 
   const [songs, setSongs] = useState<FirebaseSong[]>([]);
-  const [ceremonies, setCeremonies] = useState<FirebaseCeremony[]>([]);
+  const [sermons, setSermons] = useState<FirebaseSermon[]>([]);
   const [articles, setArticles] = useState<FirebaseArticle[]>([]);
 
   const [songsLoading, setSongsLoading] = useState(true);
-  const [ceremoniesLoading, setCeremoniesLoading] = useState(true);
+  const [sermonsLoading, setSermonsLoading] = useState(true);
   const [articlesLoading, setArticlesLoading] = useState(true);
 
   const [songModalOpen, setSongModalOpen] = useState(false);
-  const [ceremonyModalOpen, setCeremonyModalOpen] = useState(false);
+  const [sermonModalOpen, setSermonModalOpen] = useState(false);
   const [articleModalOpen, setArticleModalOpen] = useState(false);
 
   const [selectedSong, setSelectedSong] = useState<FirebaseSong | null>(null);
-  const [selectedCeremony, setSelectedCeremony] =
-    useState<FirebaseCeremony | null>(null);
+  const [selectedSermon, setSelectedSermon] =
+    useState<FirebaseSermon | null>(null);
   const [selectedArticle, setSelectedArticle] =
     useState<FirebaseArticle | null>(null);
 
@@ -113,38 +119,55 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, []);
 
+  const sermonSnapshotsRef = useRef<Record<string, FirebaseSermon[]>>({});
+
   useEffect(() => {
-    const ceremoniesQuery = query(
-      collection(db, "ceremonies"),
-      orderBy("dateCreated", "desc")
-    );
-    const unsubscribe = onSnapshot(
-      ceremoniesQuery,
-      (snapshot) => {
-        setCeremonies(
-          snapshot.docs.map((docSnap) => {
-            const data = docSnap.data();
-            return {
-              id: docSnap.id,
-              title: String(data.title ?? ""),
-              subtitle: String(data.subtitle ?? "").trim() || undefined,
-              description: String(data.description ?? ""),
-              coverImage: String(data.coverImage ?? "").trim() || undefined,
-              category: String(data.category ?? "Other"),
-              dateCreated: toMillis(data.dateCreated),
-              createdBy: String(data.createdBy ?? ""),
-              isPublished: Boolean(data.isPublished),
-            };
-          })
+    sermonSnapshotsRef.current = {};
+
+    function publishMerged() {
+      setSermons(mergeSermonsById(Object.values(sermonSnapshotsRef.current)));
+      setSermonsLoading(false);
+    }
+
+    const unsubscribes = [SERMONS_COLLECTION, LEGACY_SERMONS_COLLECTION].map(
+      (collectionName) => {
+        const sermonsQuery = query(
+          collection(db, collectionName),
+          orderBy("dateCreated", "desc")
         );
-        setCeremoniesLoading(false);
-      },
-      () => {
-        toast.error("Unable to sync ceremonies");
-        setCeremoniesLoading(false);
+
+        return onSnapshot(
+          sermonsQuery,
+          (snapshot) => {
+            sermonSnapshotsRef.current[collectionName] = snapshot.docs.map(
+              (docSnap) =>
+                normalizeSermonFromFirestore(
+                  docSnap.id,
+                  docSnap.data() as Record<string, unknown>
+                )
+            );
+            if (process.env.NODE_ENV !== "production") {
+              console.info("[AdminPanel] sermons snapshot", {
+                collection: collectionName,
+                count: snapshot.docs.length,
+              });
+            }
+            publishMerged();
+          },
+          (error) => {
+            console.error("[AdminPanel] sermons snapshot failed", {
+              collection: collectionName,
+              error,
+            });
+            sermonSnapshotsRef.current[collectionName] = [];
+            publishMerged();
+            toast.error("Unable to sync sermons");
+          }
+        );
       }
     );
-    return () => unsubscribe();
+
+    return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
   }, []);
 
   useEffect(() => {
@@ -189,16 +212,16 @@ export default function AdminPage() {
   }, []);
 
   const withAudio = songs.filter((s) => s.audioUrl).length;
-  const publishedCeremonies = ceremonies.filter((c) => c.isPublished).length;
+  const publishedSermons = sermons.filter((s) => s.isPublished).length;
   const publishedArticles = articles.filter((a) => a.isPublished).length;
 
   function getAddHandler() {
     if (activeTab === "songs") {
       setSelectedSong(null);
       setSongModalOpen(true);
-    } else if (activeTab === "ceremonies") {
-      setSelectedCeremony(null);
-      setCeremonyModalOpen(true);
+    } else if (activeTab === "sermons") {
+      setSelectedSermon(null);
+      setSermonModalOpen(true);
     } else {
       setSelectedArticle(null);
       setArticleModalOpen(true);
@@ -208,8 +231,8 @@ export default function AdminPage() {
   const addLabel =
     activeTab === "songs"
       ? "Add Song"
-      : activeTab === "ceremonies"
-        ? "Add Ceremony"
+      : activeTab === "sermons"
+        ? "Add Sermon"
         : "Add Article";
 
   return (
@@ -229,7 +252,7 @@ export default function AdminPage() {
                 Worship Admin
               </h1>
               <p className="text-xs text-muted-foreground">
-                Manage songs, ceremonies, and articles
+                Manage songs, sermons, and articles
               </p>
             </div>
           </div>
@@ -254,8 +277,8 @@ export default function AdminPage() {
           <TabsTrigger value="songs" className="rounded-lg px-4 py-2 text-xs font-semibold sm:text-sm">
             Songs
           </TabsTrigger>
-          <TabsTrigger value="ceremonies" className="rounded-lg px-4 py-2 text-xs font-semibold sm:text-sm">
-            Ceremonies
+          <TabsTrigger value="sermons" className="rounded-lg px-4 py-2 text-xs font-semibold sm:text-sm">
+            Sermons
           </TabsTrigger>
           <TabsTrigger value="articles" className="rounded-lg px-4 py-2 text-xs font-semibold sm:text-sm">
             Articles
@@ -284,11 +307,11 @@ export default function AdminPage() {
           />
         </TabsContent>
 
-        <TabsContent value="ceremonies" className="mt-0 space-y-4">
+        <TabsContent value="sermons" className="mt-0 space-y-4">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
             {[
-              { icon: <Church className="h-4 w-4" />, label: "Total Ceremonies", value: ceremoniesLoading ? "—" : ceremonies.length },
-              { icon: <Church className="h-4 w-4" />, label: "Published", value: ceremoniesLoading ? "—" : publishedCeremonies },
+              { icon: <Church className="h-4 w-4" />, label: "Total Sermons", value: sermonsLoading ? "—" : sermons.length },
+              { icon: <Church className="h-4 w-4" />, label: "Published", value: sermonsLoading ? "—" : publishedSermons },
             ].map((stat) => (
               <div key={stat.label} className="flex flex-col gap-1.5 rounded-xl border border-border/50 bg-card px-4 py-4 shadow-sm">
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">{stat.icon}</div>
@@ -297,10 +320,10 @@ export default function AdminPage() {
               </div>
             ))}
           </div>
-          <CeremonyList
-            ceremonies={ceremonies}
-            loading={ceremoniesLoading}
-            onEdit={(ceremony) => { setSelectedCeremony(ceremony); setCeremonyModalOpen(true); }}
+          <SermonList
+            sermons={sermons}
+            loading={sermonsLoading}
+            onEdit={(sermon) => { setSelectedSermon(sermon); setSermonModalOpen(true); }}
             onDelete={() => {}}
           />
         </TabsContent>
@@ -333,11 +356,11 @@ export default function AdminPage() {
         onSave={() => { setSongModalOpen(false); setSelectedSong(null); }}
         initialSong={selectedSong}
       />
-      <AddCeremonyModal
-        isOpen={ceremonyModalOpen}
-        onClose={() => { setCeremonyModalOpen(false); setSelectedCeremony(null); }}
-        onSave={() => { setCeremonyModalOpen(false); setSelectedCeremony(null); }}
-        initialCeremony={selectedCeremony}
+      <AddSermonModal
+        isOpen={sermonModalOpen}
+        onClose={() => { setSermonModalOpen(false); setSelectedSermon(null); }}
+        onSave={() => { setSermonModalOpen(false); setSelectedSermon(null); }}
+        initialSermon={selectedSermon}
       />
       <AddArticleModal
         isOpen={articleModalOpen}
