@@ -11,13 +11,6 @@ type FirebaseSermonCardProps = {
   className?: string;
 };
 
-function getCreatorInitial(createdBy: string): string {
-  const trimmed = createdBy.trim();
-  if (!trimmed) return "?";
-  const label = trimmed.includes("@") ? trimmed.split("@")[0]! : trimmed;
-  return label.charAt(0).toUpperCase();
-}
-
 export function FirebaseSermonCard({
   sermon,
   className,
@@ -26,8 +19,8 @@ export function FirebaseSermonCard({
 
   const href = `/sermons/${encodeURIComponent(sermon.id)}`;
   const coverUrl = getSongCoverUrl(sermon.coverImage);
-  const description = sermon.subtitle || sermon.description;
-  const category = sermon.category.trim();
+  const scripture = sermon.scriptureReference.trim();
+  const excerpt = sermon.shortDescription || sermon.subtitle;
 
   return (
     <ProtectedContentLink
@@ -46,12 +39,12 @@ export function FirebaseSermonCard({
           alt={sermon.title}
           className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        {category ? (
+        {scripture ? (
           <Badge
             variant="secondary"
             className="absolute left-3 top-3 rounded-md border-0 bg-background/85 px-2 py-0.5 text-[10px] font-medium text-foreground shadow-sm backdrop-blur-sm"
           >
-            {category}
+            {scripture}
           </Badge>
         ) : null}
       </div>
@@ -61,26 +54,19 @@ export function FirebaseSermonCard({
           {sermon.title}
         </h3>
 
-        {description ? (
+        {sermon.speaker ? (
+          <p className="text-left text-xs font-medium text-muted-foreground">
+            {sermon.speaker}
+          </p>
+        ) : null}
+
+        {excerpt ? (
           <p className="line-clamp-2 text-left text-sm leading-relaxed text-muted-foreground">
-            {description}
+            {excerpt}
           </p>
         ) : null}
 
         <div className="mt-auto flex items-center gap-2 pt-3 text-left">
-          {sermon.createdBy ? (
-            <>
-              <span
-                aria-hidden
-                className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted/80 text-[10px] font-semibold uppercase text-muted-foreground"
-              >
-                {getCreatorInitial(sermon.createdBy)}
-              </span>
-              <span aria-hidden className="shrink-0 text-xs text-muted-foreground/50">
-                ·
-              </span>
-            </>
-          ) : null}
           <time
             dateTime={new Date(sermon.dateCreated).toISOString()}
             className="shrink-0 text-xs text-muted-foreground/80"

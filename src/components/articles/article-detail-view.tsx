@@ -1,6 +1,7 @@
 import type { FirebaseArticle } from "@/types/firebase-article";
 
 import { ArticleNavigation } from "@/components/articles/article-navigation";
+import { ArticleRelatedVideo } from "@/components/articles/article-related-video";
 import { RelatedArticles } from "@/components/articles/related-articles";
 import { ReadingDetailLayout } from "@/components/reading-detail-layout";
 import { ShareContentButton } from "@/components/share-content-button";
@@ -20,18 +21,22 @@ export function ArticleDetailView({
   nextArticle,
 }: ArticleDetailViewProps) {
   const coverUrl = getSongCoverUrl(article.coverImage);
+  const headerSubtitle = article.scriptureReference
+    ? `${article.shortDescription} · ${article.scriptureReference}`
+    : article.shortDescription;
 
   return (
     <ReadingDetailLayout
       coverUrl={coverUrl}
       coverAlt={article.title}
-      category={article.tags[0]}
+      category={article.category}
       title={article.title}
-      subtitle={article.shortDescription}
+      subtitle={headerSubtitle}
       author={article.author}
       authorImage={article.authorImage}
       dateCreated={article.dateCreated}
       content={article.content}
+      beforeContent={<ArticleRelatedVideo youtubeUrl={article.youtubeUrl} />}
       headerAction={
         <ShareContentButton
           title={article.title}

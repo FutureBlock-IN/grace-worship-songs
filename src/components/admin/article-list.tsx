@@ -126,6 +126,14 @@ export function ArticleList({
                     {article.title}
                   </p>
                   <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                    <span className="inline-flex rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                      {article.category}
+                    </span>
+                    {article.featured ? (
+                      <span className="inline-flex rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">
+                        Featured
+                      </span>
+                    ) : null}
                     <span className="text-[10px] text-muted-foreground">
                       by {article.author}
                     </span>

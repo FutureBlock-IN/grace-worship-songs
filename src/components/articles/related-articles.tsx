@@ -49,12 +49,12 @@ export function RelatedArticles({ articles }: RelatedArticlesProps) {
               </div>
 
               <div className="space-y-2">
-                {article.tags[0] ? (
+                {article.category ? (
                   <Badge
                     variant="secondary"
                     className="rounded-md border-0 bg-muted/50 px-2 py-0 text-[10px] font-medium text-muted-foreground"
                   >
-                    {article.tags[0]}
+                    {article.category}
                   </Badge>
                 ) : null}
 

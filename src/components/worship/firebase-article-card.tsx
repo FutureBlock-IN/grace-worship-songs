@@ -26,7 +26,7 @@ export function FirebaseArticleCard({
 
   const href = `/articles/${encodeURIComponent(article.id)}`;
   const coverUrl = getSongCoverUrl(article.coverImage);
-  const tag = article.tags[0];
+  const category = article.category.trim();
 
   return (
     <ProtectedContentLink
@@ -45,14 +45,21 @@ export function FirebaseArticleCard({
           alt={article.title}
           className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        {tag ? (
-          <Badge
-            variant="secondary"
-            className="absolute left-3 top-3 rounded-md border-0 bg-background/85 px-2 py-0.5 text-[10px] font-medium text-foreground shadow-sm backdrop-blur-sm"
-          >
-            {tag}
-          </Badge>
-        ) : null}
+        <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+          {category ? (
+            <Badge
+              variant="secondary"
+              className="rounded-md border-0 bg-background/85 px-2 py-0.5 text-[10px] font-medium text-foreground shadow-sm backdrop-blur-sm"
+            >
+              {category}
+            </Badge>
+          ) : null}
+          {article.featured ? (
+            <Badge className="rounded-md border-0 bg-primary/90 px-2 py-0.5 text-[10px] font-medium text-primary-foreground shadow-sm backdrop-blur-sm">
+              Featured
+            </Badge>
+          ) : null}
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-4 text-left">

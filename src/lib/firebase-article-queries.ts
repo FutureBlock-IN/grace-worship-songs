@@ -22,43 +22,17 @@ import type {
 
 import { getAdminDb } from "./firebase-admin";
 import { db } from "./firebase";
-import { toMillis, wrapFirebaseError } from "./firebase-utils";
-
-const ARTICLES_COLLECTION = "articles";
-
-function normalizeTags(value: unknown): string[] {
-  if (Array.isArray(value)) {
-    return value.map((tag) => String(tag).trim()).filter(Boolean);
-  }
-  if (typeof value === "string") {
-    return value
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter(Boolean);
-  }
-  return [];
-}
+import { wrapFirebaseError } from "./firebase-utils";
+import {
+  ARTICLES_COLLECTION,
+  normalizeArticleFromFirestore,
+} from "./article-firestore";
 
 function normalizeArticle(
   id: string,
   data: Record<string, unknown>
 ): FirebaseArticle {
-  const rawCover = String(data.coverImage ?? data.imageUrl ?? "").trim();
-
-  return {
-    id,
-    title: String(data.title ?? ""),
-    shortDescription: String(data.shortDescription ?? ""),
-    content: String(data.content ?? ""),
-    coverImage: rawCover || undefined,
-    author: String(data.author ?? ""),
-    authorImage:
-      String(data.authorImage ?? data.authorPhoto ?? "").trim() || undefined,
-    tags: normalizeTags(data.tags),
-    dateCreated: toMillis(data.dateCreated ?? data.createdAt),
-    createdBy: String(data.createdBy ?? ""),
-    isPublished: Boolean(data.isPublished),
-  };
+  return normalizeArticleFromFirestore(id, data);
 }
 
 async function fetchAllArticles(): Promise<FirebaseArticle[]> {
@@ -155,11 +129,17 @@ export async function searchArticles(
 
   const articles = await getPublishedArticles();
   return articles.filter((article) => {
-    const inTitle = article.title.toLowerCase().includes(normalized);
-    const inTags = article.tags.some((tag) =>
-      tag.toLowerCase().includes(normalized)
-    );
-    return inTitle || inTags;
+    const haystack = [
+      article.title,
+      article.category,
+      article.author,
+      article.scriptureReference ?? "",
+      article.shortDescription,
+      ...article.tags,
+    ]
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(normalized);
   });
 }
 

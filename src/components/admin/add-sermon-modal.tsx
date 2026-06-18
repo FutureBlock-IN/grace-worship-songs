@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import type { FirebaseSermon } from "@/types/firebase-sermon";
-import { SERMON_CATEGORIES } from "@/types/firebase-sermon";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,34 +21,58 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useFirebaseAuth } from "@/context/firebase-auth-context";
 import { createSermon, updateSermon } from "@/lib/firebase-sermon-queries";
+import {
+  isValidAudioUrl,
+  isValidYouTubeUrl,
+} from "@/lib/media-url-validation";
 import { notifyIfNewlyPublished } from "@/lib/notify-if-published";
 import { uploadSongFileLocal } from "@/lib/local-upload";
 import { MAX_IMAGE_SIZE_LABEL, validateImageFile } from "@/lib/upload-limits";
 
-const sermonSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  subtitle: z.string().optional(),
-  description: z.string().min(1, "Description is required"),
-  category: z.string().min(1, "Category is required"),
-  isPublished: z.boolean(),
-});
+const sermonSchema = z
+  .object({
+    title: z.string().min(1, "Title is required"),
+    subtitle: z.string().optional(),
+    scriptureReference: z.string().min(1, "Scripture reference is required"),
+    speaker: z.string().min(1, "Speaker / Pastor is required"),
+    shortDescription: z.string().min(1, "Short description is required"),
+    content: z.string().min(1, "Sermon content is required"),
+    tags: z.string().optional(),
+    youtubeUrl: z.string().optional(),
+    audioUrl: z.string().optional(),
+    isPublished: z.boolean(),
+  })
+  .superRefine((values, ctx) => {
+    const youtube = values.youtubeUrl?.trim() ?? "";
+    const audio = values.audioUrl?.trim() ?? "";
+
+    if (youtube && !isValidYouTubeUrl(youtube)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Enter a valid YouTube URL (youtube.com or youtu.be)",
+        path: ["youtubeUrl"],
+      });
+    }
+
+    if (audio && !isValidAudioUrl(audio)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Enter a valid audio URL (http, https, or /uploads/...)",
+        path: ["audioUrl"],
+      });
+    }
+  });
 
 type SermonFormValues = z.infer<typeof sermonSchema>;
 
@@ -59,6 +82,33 @@ type AddSermonModalProps = {
   onSave: () => void;
   initialSermon?: FirebaseSermon | null;
 };
+
+function parseTags(tagsInput?: string): string[] {
+  if (!tagsInput?.trim()) return [];
+  return tagsInput
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+}
+
+function tagsToInput(tags?: string[]): string {
+  return tags?.join(", ") ?? "";
+}
+
+function buildSermonPayload(values: SermonFormValues) {
+  return {
+    title: values.title.trim(),
+    subtitle: values.subtitle?.trim() || undefined,
+    scriptureReference: values.scriptureReference.trim(),
+    speaker: values.speaker.trim(),
+    shortDescription: values.shortDescription.trim(),
+    content: values.content.trim(),
+    tags: parseTags(values.tags),
+    youtubeUrl: values.youtubeUrl?.trim() || undefined,
+    audioUrl: values.audioUrl?.trim() || undefined,
+    isPublished: values.isPublished,
+  };
+}
 
 export function AddSermonModal({
   isOpen,
@@ -77,8 +127,13 @@ export function AddSermonModal({
     defaultValues: {
       title: "",
       subtitle: "",
-      description: "",
-      category: "Wedding",
+      scriptureReference: "",
+      speaker: "",
+      shortDescription: "",
+      content: "",
+      tags: "",
+      youtubeUrl: "",
+      audioUrl: "",
       isPublished: false,
     },
   });
@@ -88,8 +143,13 @@ export function AddSermonModal({
       form.reset({
         title: initialSermon.title,
         subtitle: initialSermon.subtitle ?? "",
-        description: initialSermon.description,
-        category: initialSermon.category,
+        scriptureReference: initialSermon.scriptureReference,
+        speaker: initialSermon.speaker,
+        shortDescription: initialSermon.shortDescription,
+        content: initialSermon.content,
+        tags: tagsToInput(initialSermon.tags),
+        youtubeUrl: initialSermon.youtubeUrl ?? "",
+        audioUrl: initialSermon.audioUrl ?? "",
         isPublished: initialSermon.isPublished,
       });
       setCoverPreview(initialSermon.coverImage ?? "");
@@ -97,8 +157,13 @@ export function AddSermonModal({
       form.reset({
         title: "",
         subtitle: "",
-        description: "",
-        category: "Wedding",
+        scriptureReference: "",
+        speaker: "",
+        shortDescription: "",
+        content: "",
+        tags: "",
+        youtubeUrl: "",
+        audioUrl: "",
         isPublished: false,
       });
       setCoverPreview("");
@@ -128,19 +193,19 @@ export function AddSermonModal({
       return;
     }
 
+    if (!coverFile && !coverPreview.trim()) {
+      toast.error("Cover image is required");
+      return;
+    }
+
     const createdBy =
       authUser?.email ?? authUser?.displayName ?? authUser?.uid ?? "admin";
+    const payload = buildSermonPayload(values);
 
     setLoading(true);
     try {
       if (initialSermon) {
-        await updateSermon(initialSermon.id, {
-          title: values.title.trim(),
-          subtitle: values.subtitle?.trim() || undefined,
-          description: values.description.trim(),
-          category: values.category,
-          isPublished: values.isPublished,
-        });
+        await updateSermon(initialSermon.id, payload);
 
         let coverImageUrl = initialSermon.coverImage ?? "";
         if (coverFile) {
@@ -159,22 +224,18 @@ export function AddSermonModal({
         await notifyIfNewlyPublished({
           type: "sermon",
           contentId: initialSermon.id,
-          contentTitle: values.title.trim(),
+          contentTitle: payload.title,
           image: coverImageUrl,
-          isPublished: values.isPublished,
+          isPublished: payload.isPublished,
           wasPublished: initialSermon.isPublished,
         });
 
         toast.success("Sermon updated successfully");
       } else {
         const sermonId = await createSermon({
-          title: values.title.trim(),
-          subtitle: values.subtitle?.trim() || undefined,
-          description: values.description.trim(),
-          category: values.category,
+          ...payload,
           coverImage: "",
           createdBy,
-          isPublished: values.isPublished,
         });
 
         let coverImageUrl = "";
@@ -194,9 +255,9 @@ export function AddSermonModal({
         await notifyIfNewlyPublished({
           type: "sermon",
           contentId: sermonId,
-          contentTitle: values.title.trim(),
+          contentTitle: payload.title,
           image: coverImageUrl,
-          isPublished: values.isPublished,
+          isPublished: payload.isPublished,
         });
 
         toast.success("Sermon added successfully");
@@ -221,8 +282,8 @@ export function AddSermonModal({
           <DialogTitle>{initialSermon ? "Edit Sermon" : "Add Sermon"}</DialogTitle>
           <DialogDescription>
             {initialSermon
-              ? "Update sermon details and cover image"
-              : "Create a new worship sermon entry"}
+              ? "Update sermon details, media links, and cover image"
+              : "Publish a new sermon to Grace Worship Songs"}
           </DialogDescription>
         </DialogHeader>
 
@@ -230,7 +291,7 @@ export function AddSermonModal({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <Card className="border-border/50 shadow-none">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-semibold">Details</CardTitle>
+                <CardTitle className="text-sm font-semibold">Sermon Details</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -263,14 +324,42 @@ export function AddSermonModal({
 
                 <FormField
                   control={form.control}
-                  name="description"
+                  name="scriptureReference"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>Scripture Reference</FormLabel>
+                      <FormControl>
+                        <Input placeholder="John 3:16" disabled={loading} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="speaker"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Speaker / Pastor</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Pastor name" disabled={loading} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="shortDescription"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Short Description</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Describe this sermon..."
-                          rows={4}
+                          placeholder="Brief summary for cards and search..."
+                          rows={3}
                           disabled={loading}
                           {...field}
                         />
@@ -282,29 +371,73 @@ export function AddSermonModal({
 
                 <FormField
                   control={form.control}
-                  name="category"
+                  name="content"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        value={field.value}
-                        disabled={loading}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {SERMON_CATEGORIES.map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>Sermon Content</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Full sermon notes or transcript..."
+                          rows={8}
+                          disabled={loading}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="tags"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tags (optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="faith, grace, salvation"
+                          disabled={loading}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>Comma-separated tags</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="youtubeUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>YouTube URL (optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="https://youtube.com/watch?v=... or https://youtu.be/..."
+                          disabled={loading}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="audioUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Audio URL (optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="https://example.com/sermon.mp3"
+                          disabled={loading}
+                          {...field}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -317,7 +450,9 @@ export function AddSermonModal({
                 <CardTitle className="text-sm font-semibold">Cover Image</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <p className="text-xs text-muted-foreground">Max {MAX_IMAGE_SIZE_LABEL}</p>
+                <p className="text-xs text-muted-foreground">
+                  Required · Max {MAX_IMAGE_SIZE_LABEL}
+                </p>
                 <div className="flex gap-4">
                   {coverPreview ? (
                     <div className="relative h-20 w-20 shrink-0">

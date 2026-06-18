@@ -237,9 +237,18 @@ export async function searchSermons(
   if (!normalized) return [];
 
   const sermons = await getPublishedSermons();
-  return sermons.filter((sermon) =>
-    sermon.title.toLowerCase().includes(normalized)
-  );
+  return sermons.filter((sermon) => {
+    const haystack = [
+      sermon.title,
+      sermon.speaker,
+      sermon.scriptureReference,
+      sermon.shortDescription,
+      ...sermon.tags,
+    ]
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(normalized);
+  });
 }
 
 export async function createSermon(

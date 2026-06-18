@@ -26,6 +26,7 @@ import { MusicList } from "@/components/admin/music-list";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { db } from "@/lib/firebase";
+import { normalizeArticleFromFirestore } from "@/lib/article-firestore";
 import {
   LEGACY_SERMONS_COLLECTION,
   SERMONS_COLLECTION,
@@ -179,27 +180,12 @@ export default function AdminPage() {
       articlesQuery,
       (snapshot) => {
         setArticles(
-          snapshot.docs.map((docSnap) => {
-            const data = docSnap.data();
-            const tags = Array.isArray(data.tags)
-              ? data.tags.map((t) => String(t).trim()).filter(Boolean)
-              : [];
-            return {
-              id: docSnap.id,
-              title: String(data.title ?? ""),
-              shortDescription: String(data.shortDescription ?? ""),
-              content: String(data.content ?? ""),
-              coverImage: String(data.coverImage ?? "").trim() || undefined,
-              author: String(data.author ?? ""),
-              authorImage:
-                String(data.authorImage ?? data.authorPhoto ?? "").trim() ||
-                undefined,
-              tags,
-              dateCreated: toMillis(data.dateCreated),
-              createdBy: String(data.createdBy ?? ""),
-              isPublished: Boolean(data.isPublished),
-            };
-          })
+          snapshot.docs.map((docSnap) =>
+            normalizeArticleFromFirestore(
+              docSnap.id,
+              docSnap.data() as Record<string, unknown>
+            )
+          )
         );
         setArticlesLoading(false);
       },

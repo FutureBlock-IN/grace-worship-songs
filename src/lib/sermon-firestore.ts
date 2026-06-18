@@ -16,19 +16,42 @@ export const SERMON_READ_COLLECTIONS = [
   LEGACY_SERMONS_COLLECTION,
 ] as const;
 
+function normalizeTags(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.map((tag) => String(tag).trim()).filter(Boolean);
+  }
+  if (typeof value === "string" && value.trim()) {
+    return value
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
 export function normalizeSermonFromFirestore(
   id: string,
   data: Record<string, unknown>
 ): FirebaseSermon {
   const rawCover = String(data.coverImage ?? data.imageUrl ?? "").trim();
+  const legacyBody = String(data.description ?? "").trim();
+  const content = String(data.content ?? legacyBody).trim();
+  const shortDescription =
+    String(data.shortDescription ?? "").trim() ||
+    (legacyBody && !data.content ? legacyBody.slice(0, 160) : "");
 
   return {
     id,
     title: String(data.title ?? ""),
     subtitle: String(data.subtitle ?? "").trim() || undefined,
-    description: String(data.description ?? ""),
+    scriptureReference: String(data.scriptureReference ?? "").trim(),
+    speaker: String(data.speaker ?? data.createdBy ?? "").trim(),
+    shortDescription,
+    content,
+    tags: normalizeTags(data.tags),
+    youtubeUrl: String(data.youtubeUrl ?? data.videoUrl ?? "").trim() || undefined,
+    audioUrl: String(data.audioUrl ?? data.audioFileUrl ?? "").trim() || undefined,
     coverImage: rawCover || undefined,
-    category: String(data.category ?? "Other"),
     dateCreated: toMillis(data.dateCreated ?? data.createdAt),
     createdBy: String(data.createdBy ?? ""),
     isPublished: resolveIsPublished(data),
