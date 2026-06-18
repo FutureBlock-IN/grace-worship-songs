@@ -1,8 +1,8 @@
 import type { FirebaseArticle } from "@/types/firebase-article";
 
 import { ArticleNavigation } from "@/components/articles/article-navigation";
-import { ArticleRelatedVideo } from "@/components/articles/article-related-video";
 import { RelatedArticles } from "@/components/articles/related-articles";
+import { YouTubeEmbed } from "@/components/media/youtube-embed";
 import { ReadingDetailLayout } from "@/components/reading-detail-layout";
 import { ShareContentButton } from "@/components/share-content-button";
 import { getSongCoverUrl } from "@/lib/utils";
@@ -36,7 +36,9 @@ export function ArticleDetailView({
       authorImage={article.authorImage}
       dateCreated={article.dateCreated}
       content={article.content}
-      beforeContent={<ArticleRelatedVideo youtubeUrl={article.youtubeUrl} />}
+      beforeContent={
+        <YouTubeEmbed title={article.title} youtubeUrl={article.youtubeUrl} />
+      }
       headerAction={
         <ShareContentButton
           title={article.title}
