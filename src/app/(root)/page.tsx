@@ -3,7 +3,7 @@ import { HomeProfileSection } from "@/components/home-profile-section";
 import { WorshipCollectionSection } from "@/components/worship/worship-collection-section";
 import { siteConfig } from "@/config/site";
 import { getPublishedArticles } from "@/lib/firebase-article-queries";
-import { getPublishedCeremonies } from "@/lib/firebase-ceremony-queries";
+import { getPublishedSermons } from "@/lib/firebase-sermon-queries";
 import { getAllSongs } from "@/lib/firebase-queries";
 
 export const dynamic = "force-dynamic";
@@ -26,9 +26,9 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-  const [songs, ceremonies, articles] = await Promise.all([
+  const [songs, sermons, articles] = await Promise.all([
     getAllSongs(),
-    getPublishedCeremonies(),
+    getPublishedSermons(),
     getPublishedArticles(),
   ]);
 
@@ -38,7 +38,7 @@ export default async function HomePage() {
       <HomeAdminFab />
       <WorshipCollectionSection
         songs={songs}
-        ceremonies={ceremonies}
+        sermons={sermons}
         articles={articles}
       />
     </div>

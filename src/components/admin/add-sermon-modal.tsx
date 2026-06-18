@@ -7,8 +7,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import type { FirebaseCeremony } from "@/types/firebase-ceremony";
-import { CEREMONY_CATEGORIES } from "@/types/firebase-ceremony";
+import type { FirebaseSermon } from "@/types/firebase-sermon";
+import { SERMON_CATEGORIES } from "@/types/firebase-sermon";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,12 +38,12 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useFirebaseAuth } from "@/context/firebase-auth-context";
-import { createCeremony, updateCeremony } from "@/lib/firebase-ceremony-queries";
+import { createSermon, updateSermon } from "@/lib/firebase-sermon-queries";
 import { notifyIfNewlyPublished } from "@/lib/notify-if-published";
 import { uploadSongFileLocal } from "@/lib/local-upload";
 import { MAX_IMAGE_SIZE_LABEL, validateImageFile } from "@/lib/upload-limits";
 
-const ceremonySchema = z.object({
+const sermonSchema = z.object({
   title: z.string().min(1, "Title is required"),
   subtitle: z.string().optional(),
   description: z.string().min(1, "Description is required"),
@@ -51,29 +51,29 @@ const ceremonySchema = z.object({
   isPublished: z.boolean(),
 });
 
-type CeremonyFormValues = z.infer<typeof ceremonySchema>;
+type SermonFormValues = z.infer<typeof sermonSchema>;
 
-type AddCeremonyModalProps = {
+type AddSermonModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSave: () => void;
-  initialCeremony?: FirebaseCeremony | null;
+  initialSermon?: FirebaseSermon | null;
 };
 
-export function AddCeremonyModal({
+export function AddSermonModal({
   isOpen,
   onClose,
   onSave,
-  initialCeremony,
-}: AddCeremonyModalProps) {
+  initialSermon,
+}: AddSermonModalProps) {
   const { authUser } = useFirebaseAuth();
   const [coverFile, setCoverFile] = useState<File | undefined>();
   const [coverPreview, setCoverPreview] = useState("");
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const form = useForm<CeremonyFormValues>({
-    resolver: zodResolver(ceremonySchema),
+  const form = useForm<SermonFormValues>({
+    resolver: zodResolver(sermonSchema),
     defaultValues: {
       title: "",
       subtitle: "",
@@ -84,15 +84,15 @@ export function AddCeremonyModal({
   });
 
   useEffect(() => {
-    if (initialCeremony) {
+    if (initialSermon) {
       form.reset({
-        title: initialCeremony.title,
-        subtitle: initialCeremony.subtitle ?? "",
-        description: initialCeremony.description,
-        category: initialCeremony.category,
-        isPublished: initialCeremony.isPublished,
+        title: initialSermon.title,
+        subtitle: initialSermon.subtitle ?? "",
+        description: initialSermon.description,
+        category: initialSermon.category,
+        isPublished: initialSermon.isPublished,
       });
-      setCoverPreview(initialCeremony.coverImage ?? "");
+      setCoverPreview(initialSermon.coverImage ?? "");
     } else {
       form.reset({
         title: "",
@@ -105,7 +105,7 @@ export function AddCeremonyModal({
     }
     setCoverFile(undefined);
     setUploadProgress(0);
-  }, [initialCeremony, isOpen, form]);
+  }, [initialSermon, isOpen, form]);
 
   function handleCoverChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -122,7 +122,7 @@ export function AddCeremonyModal({
     reader.readAsDataURL(file);
   }
 
-  async function onSubmit(values: CeremonyFormValues) {
+  async function onSubmit(values: SermonFormValues) {
     if (coverFile && validateImageFile(coverFile)) {
       toast.error(validateImageFile(coverFile)!);
       return;
@@ -133,8 +133,8 @@ export function AddCeremonyModal({
 
     setLoading(true);
     try {
-      if (initialCeremony) {
-        await updateCeremony(initialCeremony.id, {
+      if (initialSermon) {
+        await updateSermon(initialSermon.id, {
           title: values.title.trim(),
           subtitle: values.subtitle?.trim() || undefined,
           description: values.description.trim(),
@@ -142,32 +142,32 @@ export function AddCeremonyModal({
           isPublished: values.isPublished,
         });
 
-        let coverImageUrl = initialCeremony.coverImage ?? "";
+        let coverImageUrl = initialSermon.coverImage ?? "";
         if (coverFile) {
           const fd = new FormData();
           fd.append("file", coverFile);
           const url = await uploadSongFileLocal(
-            initialCeremony.id,
+            initialSermon.id,
             "cover",
             fd,
             (p) => setUploadProgress(p)
           );
           coverImageUrl = url;
-          await updateCeremony(initialCeremony.id, { coverImage: url });
+          await updateSermon(initialSermon.id, { coverImage: url });
         }
 
         await notifyIfNewlyPublished({
-          type: "ceremony",
-          contentId: initialCeremony.id,
+          type: "sermon",
+          contentId: initialSermon.id,
           contentTitle: values.title.trim(),
           image: coverImageUrl,
           isPublished: values.isPublished,
-          wasPublished: initialCeremony.isPublished,
+          wasPublished: initialSermon.isPublished,
         });
 
-        toast.success("Ceremony updated successfully");
+        toast.success("Sermon updated successfully");
       } else {
-        const ceremonyId = await createCeremony({
+        const sermonId = await createSermon({
           title: values.title.trim(),
           subtitle: values.subtitle?.trim() || undefined,
           description: values.description.trim(),
@@ -182,24 +182,24 @@ export function AddCeremonyModal({
           const fd = new FormData();
           fd.append("file", coverFile);
           const url = await uploadSongFileLocal(
-            ceremonyId,
+            sermonId,
             "cover",
             fd,
             (p) => setUploadProgress(p)
           );
           coverImageUrl = url;
-          await updateCeremony(ceremonyId, { coverImage: url });
+          await updateSermon(sermonId, { coverImage: url });
         }
 
         await notifyIfNewlyPublished({
-          type: "ceremony",
-          contentId: ceremonyId,
+          type: "sermon",
+          contentId: sermonId,
           contentTitle: values.title.trim(),
           image: coverImageUrl,
           isPublished: values.isPublished,
         });
 
-        toast.success("Ceremony added successfully");
+        toast.success("Sermon added successfully");
       }
 
       onSave();
@@ -207,7 +207,7 @@ export function AddCeremonyModal({
       setCoverFile(undefined);
       setCoverPreview("");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to save ceremony");
+      toast.error(error instanceof Error ? error.message : "Failed to save sermon");
     } finally {
       setLoading(false);
       setUploadProgress(0);
@@ -218,11 +218,11 @@ export function AddCeremonyModal({
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open && !loading) onClose(); }}>
       <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{initialCeremony ? "Edit Ceremony" : "Add Ceremony"}</DialogTitle>
+          <DialogTitle>{initialSermon ? "Edit Sermon" : "Add Sermon"}</DialogTitle>
           <DialogDescription>
-            {initialCeremony
-              ? "Update ceremony details and cover image"
-              : "Create a new worship ceremony entry"}
+            {initialSermon
+              ? "Update sermon details and cover image"
+              : "Create a new worship sermon entry"}
           </DialogDescription>
         </DialogHeader>
 
@@ -240,7 +240,7 @@ export function AddCeremonyModal({
                     <FormItem>
                       <FormLabel>Title</FormLabel>
                       <FormControl>
-                        <Input placeholder="Ceremony title" disabled={loading} {...field} />
+                        <Input placeholder="Sermon title" disabled={loading} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -269,7 +269,7 @@ export function AddCeremonyModal({
                       <FormLabel>Description</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Describe this ceremony..."
+                          placeholder="Describe this sermon..."
                           rows={4}
                           disabled={loading}
                           {...field}
@@ -298,7 +298,7 @@ export function AddCeremonyModal({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {CEREMONY_CATEGORIES.map((category) => (
+                          {SERMON_CATEGORIES.map((category) => (
                             <SelectItem key={category} value={category}>
                               {category}
                             </SelectItem>
@@ -329,7 +329,7 @@ export function AddCeremonyModal({
                       <button
                         type="button"
                         onClick={() => {
-                          setCoverPreview(initialCeremony?.coverImage ?? "");
+                          setCoverPreview(initialSermon?.coverImage ?? "");
                           setCoverFile(undefined);
                         }}
                         className="absolute -right-2 -top-2 rounded-full bg-destructive p-1 text-white"
@@ -365,7 +365,7 @@ export function AddCeremonyModal({
                   <div className="space-y-0.5">
                     <FormLabel>Publish</FormLabel>
                     <p className="text-xs text-muted-foreground">
-                      Make this ceremony visible on the home page
+                      Make this sermon visible on the home page
                     </p>
                   </div>
                   <FormControl>
@@ -390,7 +390,7 @@ export function AddCeremonyModal({
                     Saving...
                   </>
                 ) : (
-                  "Save Ceremony"
+                  "Save Sermon"
                 )}
               </Button>
             </div>

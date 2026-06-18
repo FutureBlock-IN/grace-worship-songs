@@ -50,6 +50,27 @@ const config: NextConfig = {
         destination: "/songs/:id",
         permanent: true,
       },
+      {
+        source: "/ceremonies/:id",
+        destination: "/sermons/:id",
+        permanent: true,
+      },
+      {
+        source: "/ceremonies",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/admin/ceremonies",
+        destination: "/admin-worship-panel?tab=sermons",
+        permanent: true,
+      },
+      {
+        source: "/admin-worship-panel",
+        has: [{ type: "query", key: "tab", value: "ceremonies" }],
+        destination: "/admin-worship-panel?tab=sermons",
+        permanent: true,
+      },
     ];
   },
 };

@@ -38,10 +38,10 @@ export const NOTIFICATION_PRESETS: Record<
     message: "A new article is available to read.",
     pathPrefix: "/articles",
   },
-  ceremony: {
-    title: "New Ceremony Added",
-    message: "A new ceremony has been published.",
-    pathPrefix: "/ceremonies",
+  sermon: {
+    title: "New Sermon Added",
+    message: "A new sermon has been published.",
+    pathPrefix: "/sermons",
   },
 };
 

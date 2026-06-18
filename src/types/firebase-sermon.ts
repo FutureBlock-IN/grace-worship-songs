@@ -1,4 +1,4 @@
-export type FirebaseCeremony = {
+export type FirebaseSermon = {
   id: string;
   title: string;
   subtitle?: string;
@@ -10,7 +10,7 @@ export type FirebaseCeremony = {
   isPublished: boolean;
 };
 
-export type CreateCeremonyInput = {
+export type CreateSermonInput = {
   title: string;
   subtitle?: string;
   description: string;
@@ -20,11 +20,11 @@ export type CreateCeremonyInput = {
   isPublished: boolean;
 };
 
-export type UpdateCeremonyInput = Partial<
-  Omit<CreateCeremonyInput, "createdBy">
+export type UpdateSermonInput = Partial<
+  Omit<CreateSermonInput, "createdBy">
 >;
 
-export const CEREMONY_CATEGORIES = [
+export const SERMON_CATEGORIES = [
   "Wedding",
   "Baptism",
   "Funeral",
@@ -33,4 +33,4 @@ export const CEREMONY_CATEGORIES = [
   "Other",
 ] as const;
 
-export type CeremonyCategory = (typeof CEREMONY_CATEGORIES)[number];
+export type SermonCategory = (typeof SERMON_CATEGORIES)[number];

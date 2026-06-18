@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Edit2, Loader2, Trash2, Church } from "lucide-react";
 import { toast } from "sonner";
 
-import type { FirebaseCeremony } from "@/types/firebase-ceremony";
+import type { FirebaseSermon } from "@/types/firebase-sermon";
 
 import {
   AlertDialog,
@@ -17,35 +17,35 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { DEFAULT_SONG_COVER } from "@/config/site";
-import { deleteCeremony } from "@/lib/firebase-ceremony-queries";
+import { deleteSermon } from "@/lib/firebase-sermon-queries";
 import { getSongCoverUrl } from "@/lib/utils";
 
-type CeremonyListProps = {
-  ceremonies: FirebaseCeremony[];
+type SermonListProps = {
+  sermons: FirebaseSermon[];
   loading: boolean;
-  onEdit: (ceremony: FirebaseCeremony) => void;
+  onEdit: (sermon: FirebaseSermon) => void;
   onDelete: () => void;
 };
 
-export function CeremonyList({
-  ceremonies,
+export function SermonList({
+  sermons,
   loading,
   onEdit,
   onDelete,
-}: CeremonyListProps) {
+}: SermonListProps) {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [selected, setSelected] = useState<FirebaseCeremony | null>(null);
+  const [selected, setSelected] = useState<FirebaseSermon | null>(null);
 
   async function handleConfirmDelete() {
     if (!selected) return;
     setDeleting(selected.id);
     try {
-      await deleteCeremony(selected.id);
-      toast.success("Ceremony deleted");
+      await deleteSermon(selected.id);
+      toast.success("Sermon deleted");
       onDelete();
     } catch {
-      toast.error("Failed to delete ceremony");
+      toast.error("Failed to delete sermon");
     } finally {
       setDeleting(null);
       setDeleteConfirmOpen(false);
@@ -58,13 +58,13 @@ export function CeremonyList({
       <div className="overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm">
         <div className="flex flex-col items-center justify-center gap-3 py-20">
           <Loader2 className="h-7 w-7 animate-spin text-primary/60" />
-          <p className="text-sm text-muted-foreground">Loading ceremonies…</p>
+          <p className="text-sm text-muted-foreground">Loading sermons…</p>
         </div>
       </div>
     );
   }
 
-  if (ceremonies.length === 0) {
+  if (sermons.length === 0) {
     return (
       <div className="overflow-hidden rounded-2xl border border-dashed border-border/60 bg-card/50 shadow-sm">
         <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
@@ -72,9 +72,9 @@ export function CeremonyList({
             <Church className="h-5 w-5 text-muted-foreground" />
           </div>
           <div>
-            <p className="text-sm font-medium">No ceremonies yet</p>
+            <p className="text-sm font-medium">No sermons yet</p>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Add your first ceremony to get started.
+              Add your first sermon to get started.
             </p>
           </div>
         </div>
@@ -88,23 +88,23 @@ export function CeremonyList({
         <div className="border-b border-border/50 bg-muted/30 px-4 py-3 sm:px-6">
           <div className="flex items-center justify-between">
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-              All Ceremonies
+              All Sermons
             </p>
             <p className="text-xs text-muted-foreground">
-              {ceremonies.length}{" "}
-              {ceremonies.length === 1 ? "ceremony" : "ceremonies"}
+              {sermons.length}{" "}
+              {sermons.length === 1 ? "sermon" : "sermons"}
             </p>
           </div>
         </div>
 
         <div className="divide-y divide-border/40">
-          {ceremonies.map((ceremony, index) => {
-            const coverSrc = getSongCoverUrl(ceremony.coverImage);
-            const isDeleting = deleting === ceremony.id;
+          {sermons.map((sermon, index) => {
+            const coverSrc = getSongCoverUrl(sermon.coverImage);
+            const isDeleting = deleting === sermon.id;
 
             return (
               <div
-                key={ceremony.id}
+                key={sermon.id}
                 className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-accent/30 sm:gap-4 sm:px-6 sm:py-3.5"
               >
                 <span className="hidden w-5 shrink-0 text-center text-xs text-muted-foreground/50 sm:block">
@@ -114,7 +114,7 @@ export function CeremonyList({
                 <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-border/50 shadow-sm">
                   <img
                     src={coverSrc}
-                    alt={ceremony.title}
+                    alt={sermon.title}
                     className="h-full w-full object-cover"
                     onError={(e) => {
                       e.currentTarget.src = DEFAULT_SONG_COVER;
@@ -124,26 +124,26 @@ export function CeremonyList({
 
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-foreground">
-                    {ceremony.title}
+                    {sermon.title}
                   </p>
                   <div className="mt-1 flex items-center gap-1.5">
                     <span className="inline-flex rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                      {ceremony.category}
+                      {sermon.category}
                     </span>
                     <span
                       className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                        ceremony.isPublished
+                        sermon.isPublished
                           ? "bg-green-500/10 text-green-600 dark:text-green-400"
                           : "bg-muted text-muted-foreground"
                       }`}
                     >
-                      {ceremony.isPublished ? "Published" : "Draft"}
+                      {sermon.isPublished ? "Published" : "Draft"}
                     </span>
                   </div>
                 </div>
 
                 <span className="hidden shrink-0 text-xs text-muted-foreground sm:block">
-                  {new Date(ceremony.dateCreated).toLocaleDateString("en-IN", {
+                  {new Date(sermon.dateCreated).toLocaleDateString("en-IN", {
                     day: "numeric",
                     month: "short",
                     year: "numeric",
@@ -154,7 +154,7 @@ export function CeremonyList({
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => onEdit(ceremony)}
+                    onClick={() => onEdit(sermon)}
                     className="h-8 gap-1.5 rounded-lg px-2.5 text-xs font-medium text-muted-foreground hover:bg-primary/10 hover:text-primary"
                   >
                     <Edit2 className="h-3.5 w-3.5" />
@@ -164,7 +164,7 @@ export function CeremonyList({
                     size="sm"
                     variant="ghost"
                     onClick={() => {
-                      setSelected(ceremony);
+                      setSelected(sermon);
                       setDeleteConfirmOpen(true);
                     }}
                     disabled={isDeleting}
@@ -187,7 +187,7 @@ export function CeremonyList({
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Ceremony?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Sermon?</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete &quot;{selected?.title}&quot;? This
               action cannot be undone.

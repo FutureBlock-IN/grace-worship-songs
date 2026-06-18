@@ -59,7 +59,7 @@ export function useIsTyping() {
   return useAtom(isTyping, { store });
 }
 
-export type WorshipCollectionTab = "songs" | "ceremonies" | "articles";
+export type WorshipCollectionTab = "songs" | "sermons" | "articles";
 
 const worshipCollectionTabAtom = atom<WorshipCollectionTab>("songs");
 

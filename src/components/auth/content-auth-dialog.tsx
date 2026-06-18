@@ -72,7 +72,7 @@ export function ContentAuthDialogHost() {
           </DialogTitle>
           <DialogDescription className="text-sm leading-relaxed">
             Please sign in or create an account to access worship songs,
-            articles, and ceremonies.
+            articles, and sermons.
           </DialogDescription>
         </DialogHeader>
 
