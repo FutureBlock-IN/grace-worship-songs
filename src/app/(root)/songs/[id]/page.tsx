@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
+import { ContentAuthRequired } from "@/components/auth/content-auth-required";
 import { SongDetailClient } from "@/components/music/song-detail-client";
 import { siteConfig } from "@/config/site";
+import { isAuthenticatedServer } from "@/lib/auth-server";
 import { getSongById } from "@/lib/firebase-queries";
 import { getSongCoverUrl } from "@/lib/utils";
 import { DEFAULT_SONG_COVER } from "@/config/site";
@@ -64,6 +66,13 @@ export async function generateMetadata({
 
 export default async function SongDetailPage({ params }: SongDetailPageProps) {
   const { id } = await params;
+  const callbackPath = `/songs/${encodeURIComponent(id)}`;
+  const isAuthenticated = await isAuthenticatedServer();
+
+  if (!isAuthenticated) {
+    return <ContentAuthRequired callbackPath={callbackPath} />;
+  }
+
   const song = await getSongById(id);
 
   if (!song) {

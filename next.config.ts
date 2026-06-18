@@ -18,6 +18,14 @@ const config: NextConfig = {
         protocol: "https",
         hostname: "music-hub-4d45b.firebasestorage.app",
       },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "googleusercontent.com",
+      },
     ],
     unoptimized: !isDocker,
   },

@@ -15,7 +15,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
 
   // TODO: protect this route with a middleware
   if (!user) {
-    redirect("/login");
+    redirect("/signin");
   }
 
   return (

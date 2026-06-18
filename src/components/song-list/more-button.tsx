@@ -171,7 +171,7 @@ export function TileMoreButton(props: TileMoreButtonProps) {
     if (user) {
       setDialogOpen(true);
     } else {
-      router.push("/login");
+      router.push("/signin");
 
       toast.info("Unable to perform action", {
         description: "You need to be logged in to add to playlist",

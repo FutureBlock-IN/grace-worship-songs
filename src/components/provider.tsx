@@ -5,6 +5,8 @@ import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 import { type ThemeProviderProps } from "next-themes/dist/types";
 
+import { FirebaseAuthProvider } from "@/context/firebase-auth-context";
+import { ContentAuthDialogProvider } from "@/context/content-auth-dialog-context";
 import { Toaster } from "./ui/sonner";
 import { TooltipProvider } from "./ui/tooltip";
 
@@ -21,18 +23,22 @@ export default function Providers({ children, theme }: Props) {
   return (
     <ThemeProvider
       attribute="class"
-      defaultTheme="light"
-      enableSystem={false}
+      enableSystem
+      defaultTheme="system"
       storageKey="cfp-theme"
       disableTransitionOnChange
-      themes={["light", "dark"]}
+      themes={["light", "dark", "system"]}
       {...theme}
     >
-      <SessionProvider>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>{children}</TooltipProvider>
-        </QueryClientProvider>
-      </SessionProvider>
+      <FirebaseAuthProvider>
+        <ContentAuthDialogProvider>
+          <SessionProvider>
+            <QueryClientProvider client={queryClient}>
+              <TooltipProvider>{children}</TooltipProvider>
+            </QueryClientProvider>
+          </SessionProvider>
+        </ContentAuthDialogProvider>
+      </FirebaseAuthProvider>
 
       <Toaster />
     </ThemeProvider>

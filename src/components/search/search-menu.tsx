@@ -2,16 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Loader2, Search } from "lucide-react";
+import { Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useEffectiveWorshipCollectionTab } from "@/hooks/use-effective-worship-collection-tab";
 import { useEventListener } from "@/hooks/use-event-listner";
 import { useIsTyping } from "@/hooks/use-store";
+import { getSearchPlaceholder } from "@/lib/worship-collection";
 import { cn, isMacOs } from "@/lib/utils";
-import { FirebaseSongSearch } from "./firebase-song-search";
+
+import { FirebaseWorshipSearch } from "./firebase-worship-search";
+import { SearchContentTypeTabs } from "./search-content-type-tabs";
 
 type SearchMenuProps = {
   className?: string;
@@ -27,6 +31,10 @@ export function SearchMenu({ topSearch, className }: SearchMenuProps) {
   const debouncedQuery = useDebounce(query.trim(), 500);
 
   const [_, setIsTyping] = useIsTyping();
+  const { activeTab, setActiveTab, isRouteLocked } =
+    useEffectiveWorshipCollectionTab();
+
+  const searchPlaceholder = getSearchPlaceholder(activeTab);
 
   useEventListener("keydown", (e: KeyboardEvent) => {
     if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -64,7 +72,7 @@ export function SearchMenu({ topSearch, className }: SearchMenuProps) {
           )}
         >
           <Search aria-hidden="true" className="size-4 shrink-0" />
-          <span className="truncate text-muted-foreground">Search songs...</span>
+          <span className="truncate text-muted-foreground">{searchPlaceholder}</span>
           <kbd className="pointer-events-none ml-auto hidden h-6 shrink-0 select-none items-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium md:inline-flex">
             <span className="text-xs">{isMacOs() ? "⌘" : "Ctrl"}</span>K
           </kbd>
@@ -78,14 +86,23 @@ export function SearchMenu({ topSearch, className }: SearchMenuProps) {
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search your library"
+            placeholder={searchPlaceholder}
             className="w-full pl-8"
             autoFocus
           />
         </div>
 
+        {!isRouteLocked ? (
+          <div className="mr-4 mt-3">
+            <SearchContentTypeTabs
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+            />
+          </div>
+        ) : null}
+
         {debouncedQuery.length ?
-          <FirebaseSongSearch query={debouncedQuery} />
+          <FirebaseWorshipSearch query={debouncedQuery} />
         : topSearch}
       </DialogContent>
     </Dialog>

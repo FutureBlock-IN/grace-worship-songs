@@ -24,7 +24,7 @@ export default async function SettingsProfilePage() {
             </p>
 
             <Link
-              href="/login"
+              href="/signin"
               className={buttonVariants({ variant: "outline" })}
             >
               Sign in

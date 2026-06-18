@@ -62,14 +62,12 @@ import { ImageWithFallback } from "@/components/image-with-fallback";
 import Link from "next/link";
 
 import { siteConfig } from "@/config/site";
-import { FirebaseTopSongs } from "../search/firebase-top-songs";
+import { FirebaseWorshipTopItems } from "../search/firebase-worship-top-items-server";
 import { SearchMenu } from "../search/search-menu";
-import { ThemeToggleGroup } from "../site-footer/theme-toggle-group";
-import { MobileMenuToggle } from "../site-header/mobile-menu-toggle";
+import { AuthNav } from "../site-header/auth-nav";
 
 // NO "use client" here — this is a Server Component
-// MobileMenuToggle is the only client island (handles useState for hamburger)
-// FirebaseTopSongs is an async Server Component passed as a prop to SearchMenu
+// FirebaseWorshipTopItems is an async Server Component passed as a prop to SearchMenu
 
 export async function Navbar() {
   return (
@@ -98,7 +96,7 @@ export async function Navbar() {
         {/* Search — center */}
         <div className="flex min-w-0 flex-1 justify-center px-1 sm:px-2 md:px-4">
           <SearchMenu
-            topSearch={<FirebaseTopSongs />}
+            topSearch={<FirebaseWorshipTopItems />}
             className="w-full max-w-[200px] sm:max-w-sm md:max-w-md lg:max-w-lg"
           />
         </div>
@@ -117,15 +115,14 @@ export async function Navbar() {
           >
             Privacy
           </Link>
-          <div className="ml-1 border-l border-border/60 pl-3">
-            <ThemeToggleGroup />
+          <div className="ml-2 border-l border-border/60 pl-3">
+            <AuthNav />
           </div>
         </nav>
 
-        {/* Mobile: theme toggle + hamburger (client island) */}
+        {/* Mobile: notification bell + profile avatar (links live in the profile dropdown) */}
         <div className="flex shrink-0 items-center gap-1 md:hidden">
-          {/* <ThemeToggleGroup /> */}
-          <MobileMenuToggle />
+          <AuthNav />
         </div>
 
       </div>

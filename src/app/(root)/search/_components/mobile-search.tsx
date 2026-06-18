@@ -3,10 +3,13 @@
 import React from "react";
 import { Search } from "lucide-react";
 
-import { FirebaseSongSearch } from "@/components/search/firebase-song-search";
+import { FirebaseWorshipSearch } from "@/components/search/firebase-worship-search";
+import { SearchContentTypeTabs } from "@/components/search/search-content-type-tabs";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useEffectiveWorshipCollectionTab } from "@/hooks/use-effective-worship-collection-tab";
 import { useIsTyping } from "@/hooks/use-store";
+import { getSearchPlaceholder } from "@/lib/worship-collection";
 
 type MobileSearchProps = {
   topSearch: React.JSX.Element;
@@ -17,6 +20,10 @@ export function MobileSearch({ topSearch }: MobileSearchProps) {
 
   const debouncedQuery = useDebounce(query.trim(), 500);
   const [_, setIsTyping] = useIsTyping();
+  const { activeTab, setActiveTab, isRouteLocked } =
+    useEffectiveWorshipCollectionTab();
+
+  const searchPlaceholder = getSearchPlaceholder(activeTab);
 
   React.useEffect(() => {
     setIsTyping(debouncedQuery.length > 0);
@@ -30,14 +37,18 @@ export function MobileSearch({ topSearch }: MobileSearchProps) {
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search your library"
+          placeholder={searchPlaceholder}
           className="pl-8"
         />
       </div>
 
+      {!isRouteLocked ? (
+        <SearchContentTypeTabs activeTab={activeTab} onTabChange={setActiveTab} />
+      ) : null}
+
       {!debouncedQuery.length && topSearch}
 
-      <FirebaseSongSearch query={debouncedQuery} />
+      <FirebaseWorshipSearch query={debouncedQuery} />
     </>
   );
 }
