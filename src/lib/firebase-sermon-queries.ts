@@ -49,20 +49,16 @@ async function fetchCollectionAdmin(
         docSnap.data() as Record<string, unknown>
       )
     );
-  } catch (error) {
-    try {
-      const snapshot = await adminDb.collection(collectionName).get();
-      return snapshot.docs
-        .map((docSnap) =>
-          normalizeSermonFromFirestore(
-            docSnap.id,
-            docSnap.data() as Record<string, unknown>
-          )
+  } catch {
+    const snapshot = await adminDb.collection(collectionName).get();
+    return snapshot.docs
+      .map((docSnap) =>
+        normalizeSermonFromFirestore(
+          docSnap.id,
+          docSnap.data() as Record<string, unknown>
         )
-        .sort((a, b) => b.dateCreated - a.dateCreated);
-    } catch (innerError) {
-      throw innerError;
-    }
+      )
+      .sort((a, b) => b.dateCreated - a.dateCreated);
   }
 }
 
