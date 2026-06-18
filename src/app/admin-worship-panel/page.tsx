@@ -168,6 +168,9 @@ export default function AdminPage() {
               content: String(data.content ?? ""),
               coverImage: String(data.coverImage ?? "").trim() || undefined,
               author: String(data.author ?? ""),
+              authorImage:
+                String(data.authorImage ?? data.authorPhoto ?? "").trim() ||
+                undefined,
               tags,
               dateCreated: toMillis(data.dateCreated),
               createdBy: String(data.createdBy ?? ""),

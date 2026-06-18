@@ -15,7 +15,6 @@ import { getSearchPlaceholder } from "@/lib/worship-collection";
 import { cn, isMacOs } from "@/lib/utils";
 
 import { FirebaseWorshipSearch } from "./firebase-worship-search";
-import { SearchContentTypeTabs } from "./search-content-type-tabs";
 
 type SearchMenuProps = {
   className?: string;
@@ -31,8 +30,7 @@ export function SearchMenu({ topSearch, className }: SearchMenuProps) {
   const debouncedQuery = useDebounce(query.trim(), 500);
 
   const [_, setIsTyping] = useIsTyping();
-  const { activeTab, setActiveTab, isRouteLocked } =
-    useEffectiveWorshipCollectionTab();
+  const { activeTab } = useEffectiveWorshipCollectionTab();
 
   const searchPlaceholder = getSearchPlaceholder(activeTab);
 
@@ -91,15 +89,6 @@ export function SearchMenu({ topSearch, className }: SearchMenuProps) {
             autoFocus
           />
         </div>
-
-        {!isRouteLocked ? (
-          <div className="mr-4 mt-3">
-            <SearchContentTypeTabs
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-            />
-          </div>
-        ) : null}
 
         {debouncedQuery.length ?
           <FirebaseWorshipSearch query={debouncedQuery} />

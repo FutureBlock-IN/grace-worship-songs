@@ -75,6 +75,13 @@ const config = {
       },
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
+        reading: [
+          "var(--font-geist-sans)",
+          "var(--font-sans)",
+          "Inter",
+          "system-ui",
+          "sans-serif",
+        ],
         mono: ["var(--font-mono)", ...fontFamily.mono],
         heading: ["var(--font-heading)", ...fontFamily.sans],
         script: ["var(--font-script)", "cursive"],

@@ -4,7 +4,6 @@ import React from "react";
 import { Search } from "lucide-react";
 
 import { FirebaseWorshipSearch } from "@/components/search/firebase-worship-search";
-import { SearchContentTypeTabs } from "@/components/search/search-content-type-tabs";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useEffectiveWorshipCollectionTab } from "@/hooks/use-effective-worship-collection-tab";
@@ -20,8 +19,7 @@ export function MobileSearch({ topSearch }: MobileSearchProps) {
 
   const debouncedQuery = useDebounce(query.trim(), 500);
   const [_, setIsTyping] = useIsTyping();
-  const { activeTab, setActiveTab, isRouteLocked } =
-    useEffectiveWorshipCollectionTab();
+  const { activeTab } = useEffectiveWorshipCollectionTab();
 
   const searchPlaceholder = getSearchPlaceholder(activeTab);
 
@@ -41,10 +39,6 @@ export function MobileSearch({ topSearch }: MobileSearchProps) {
           className="pl-8"
         />
       </div>
-
-      {!isRouteLocked ? (
-        <SearchContentTypeTabs activeTab={activeTab} onTabChange={setActiveTab} />
-      ) : null}
 
       {!debouncedQuery.length && topSearch}
 
