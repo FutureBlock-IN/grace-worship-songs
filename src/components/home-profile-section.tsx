@@ -43,7 +43,7 @@ export function HomeProfileSection() {
   const verse = getVerseOfTheDay();
 
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm">
+    <section className="relative hidden overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm md:block">
       <div className="flex flex-col sm:flex-row sm:items-stretch">
         {/* ── Left: Profile ── */}
         <div className="flex items-center gap-3 p-4 sm:min-w-[240px] sm:max-w-xs sm:shrink-0 md:min-w-[260px] lg:p-5">
