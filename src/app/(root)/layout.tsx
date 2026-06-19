@@ -1,5 +1,6 @@
 import React from "react";
 
+import { HomeMobileHeroBar } from "@/components/home-mobile-hero-bar";
 import { Player } from "@/components/player";
 import { RootShell } from "@/components/root-shell";
 import { Navbar } from "@/components/site-header/navbar";
@@ -18,6 +19,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
   return (
     <React.Fragment>
       <Navbar />
+      <HomeMobileHeroBar />
       <RootShell player={<Player user={user} playlists={userPlaylists} />}>
         {children}
       </RootShell>

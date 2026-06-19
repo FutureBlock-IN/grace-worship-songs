@@ -1,5 +1,4 @@
-import { ImageWithFallback } from "@/components/image-with-fallback";
-import { siteConfig } from "@/config/site";
+import { ProfileBlock } from "@/components/home-hero-blocks";
 
 const VERSES = [
   {
@@ -45,40 +44,13 @@ export function HomeProfileSection() {
   return (
     <section className="relative hidden overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm md:block">
       <div className="flex flex-col sm:flex-row sm:items-stretch">
-        {/* ── Left: Profile ── */}
-        <div className="flex items-center gap-3 p-4 sm:min-w-[240px] sm:max-w-xs sm:shrink-0 md:min-w-[260px] lg:p-5">
-          <div className="relative shrink-0">
-            <ImageWithFallback
-              src={siteConfig.profile.image || "/images/logo.png"}
-              fallback="/images/profile.png"
-              alt={siteConfig.profile.name}
-              width={64}
-              height={64}
-              className="size-12 rounded-full object-cover ring-2 ring-primary/25 sm:size-14"
-              priority
-            />
-          </div>
+        <ProfileBlock variant="desktop" />
 
-          <div className="min-w-0 text-left">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary/60">
-              {siteConfig.name}
-            </p>
-            <h1 className="truncate font-heading text-sm font-bold leading-snug text-foreground sm:text-base">
-              {siteConfig.profile.name}
-            </h1>
-            <p className="mt-0.5 truncate text-left text-xs text-muted-foreground">
-              Christian Worship Music &amp; Lyrics
-            </p>
-          </div>
-        </div>
-
-        {/* Divider */}
         <div
           className="mx-4 h-px shrink-0 bg-border/40 sm:mx-0 sm:h-auto sm:w-px sm:self-stretch"
           aria-hidden
         />
 
-        {/* ── Right: Verse of the Day ── */}
         <div className="relative flex min-w-0 flex-1 flex-col justify-center p-4 pt-0 text-left sm:p-5 sm:pl-6">
           <div
             aria-hidden
