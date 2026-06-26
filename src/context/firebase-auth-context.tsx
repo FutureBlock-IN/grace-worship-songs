@@ -16,6 +16,7 @@ import {
   AUTH_COOKIE_NAME,
   AUTH_ROLE_COOKIE_NAME,
 } from "@/lib/auth-cookies";
+import { hasQaAdminSession } from "@/lib/qa-admin-access";
 
 /** Normalized Firebase auth user exposed to the app */
 export type AuthUser = {
@@ -137,6 +138,11 @@ export function FirebaseAuthProvider({
           setIsAdmin(adminAccess);
           setAuthCookie(true, { role: "user", isAdmin: adminAccess });
         }
+      } else if (hasQaAdminSession()) {
+        setUser(null);
+        setAuthUser(null);
+        setProfile(null);
+        setIsAdmin(false);
       } else {
         setUser(null);
         setAuthUser(null);

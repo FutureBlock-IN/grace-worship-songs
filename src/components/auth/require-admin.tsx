@@ -7,6 +7,7 @@ import React from "react";
 import { AuthLoading } from "@/components/auth/auth-loading";
 import { Button } from "@/components/ui/button";
 import { useFirebaseAuth } from "@/context/firebase-auth-context";
+import { hasQaAdminSession } from "@/lib/qa-admin-access";
 
 type RequireAdminProps = {
   children: React.ReactNode;
@@ -16,12 +17,23 @@ type RequireAdminProps = {
 export function RequireAdmin({ children }: RequireAdminProps) {
   const { user, isAdmin, loading } = useFirebaseAuth();
   const router = useRouter();
+  const [qaReady, setQaReady] = React.useState(false);
+  const [qaAccess, setQaAccess] = React.useState(false);
 
   React.useEffect(() => {
+    setQaAccess(hasQaAdminSession());
+    setQaReady(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (qaAccess) return;
     if (!loading && !user) {
       router.replace("/signin");
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, qaAccess]);
+
+  if (!qaReady) return <AuthLoading />;
+  if (qaAccess) return <>{children}</>;
 
   if (loading) return <AuthLoading />;
   if (!user) return <AuthLoading />;
