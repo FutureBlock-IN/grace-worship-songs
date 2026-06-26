@@ -13,7 +13,7 @@ type RequireAdminProps = {
   children: React.ReactNode;
 };
 
-/** Client-side guard for admin-only pages. */
+/** Client-side guard for admin-only pages... */
 export function RequireAdmin({ children }: RequireAdminProps) {
   const { user, isAdmin, loading } = useFirebaseAuth();
   const router = useRouter();
