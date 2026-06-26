@@ -29,12 +29,17 @@ export function hasQaAdminSession(): boolean {
     .some((part) => part.trim().startsWith(`${QA_ADMIN_COOKIE_NAME}=`));
 }
 
-export function getQaAdminSessionCookieOptions() {
+export function getQaAdminSessionCookieOptions(isSecure = false) {
   return {
     path: "/",
     maxAge: QA_ADMIN_SESSION_MAX_AGE,
     sameSite: "lax" as const,
+    secure: isSecure,
   };
+}
+
+export function isSecureRequest(request: { nextUrl: { protocol: string } }) {
+  return request.nextUrl.protocol === "https:";
 }
 
 /** Cookies set when visiting the secret entry URL. */

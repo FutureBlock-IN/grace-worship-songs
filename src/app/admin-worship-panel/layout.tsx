@@ -2,22 +2,27 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { cookies } from "next/headers";
 
 import { RequireAdmin } from "@/components/auth/require-admin";
 import { siteConfig } from "@/config/site";
+import { QA_ADMIN_COOKIE_NAME } from "@/lib/qa-admin-access";
 
 export const metadata = {
   title: "Admin Panel",
   description: `Manage content for ${siteConfig.name}.`,
 };
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const hasQaAccess = cookieStore.has(QA_ADMIN_COOKIE_NAME);
+
   return (
-    <RequireAdmin>
+    <RequireAdmin initialQaAccess={hasQaAccess}>
       <div className="min-h-screen bg-background">
         <header
           className="sticky top-0 z-50 w-full border-b bg-background"

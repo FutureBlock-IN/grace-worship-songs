@@ -11,19 +11,24 @@ import { hasQaAdminSession } from "@/lib/qa-admin-access";
 
 type RequireAdminProps = {
   children: React.ReactNode;
+  /** Server-read QA cookie — avoids mobile Safari client cookie timing issues */
+  initialQaAccess?: boolean;
 };
 
-/** Client-side guard for admin-only pages... */
-export function RequireAdmin({ children }: RequireAdminProps) {
+/** Client-side guard for admin-only pages. */
+export function RequireAdmin({
+  children,
+  initialQaAccess = false,
+}: RequireAdminProps) {
   const { user, isAdmin, loading } = useFirebaseAuth();
   const router = useRouter();
-  const [qaReady, setQaReady] = React.useState(false);
-  const [qaAccess, setQaAccess] = React.useState(false);
+  const [qaAccess, setQaAccess] = React.useState(initialQaAccess);
 
   React.useEffect(() => {
-    setQaAccess(hasQaAdminSession());
-    setQaReady(true);
-  }, []);
+    if (initialQaAccess || hasQaAdminSession()) {
+      setQaAccess(true);
+    }
+  }, [initialQaAccess]);
 
   React.useEffect(() => {
     if (qaAccess) return;
@@ -32,7 +37,6 @@ export function RequireAdmin({ children }: RequireAdminProps) {
     }
   }, [user, loading, router, qaAccess]);
 
-  if (!qaReady) return <AuthLoading />;
   if (qaAccess) return <>{children}</>;
 
   if (loading) return <AuthLoading />;

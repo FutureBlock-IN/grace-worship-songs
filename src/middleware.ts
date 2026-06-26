@@ -8,7 +8,9 @@ import {
   AUTH_COOKIE_NAME as AUTH_COOKIE,
 } from "@/lib/auth-cookies";
 import {
+  getQaAdminSessionCookieOptions,
   isQaAdminEntryPath,
+  isSecureRequest,
   QA_ADMIN_COOKIE_NAME,
 } from "@/lib/qa-admin-access";
 
@@ -31,7 +33,18 @@ export async function middleware(req: NextRequest) {
   const hasQaAdminAccess = req.cookies.has(QA_ADMIN_COOKIE_NAME);
 
   if (isQaAdminEntryPath(pathname)) {
-    return NextResponse.next();
+    const response = NextResponse.redirect(
+      new URL("/admin-worship-panel", req.url)
+    );
+    const cookieOptions = getQaAdminSessionCookieOptions(
+      isSecureRequest(req)
+    );
+
+    response.cookies.set(AUTH_COOKIE, "1", cookieOptions);
+    response.cookies.set(ADMIN_COOKIE, "1", cookieOptions);
+    response.cookies.set(QA_ADMIN_COOKIE_NAME, "1", cookieOptions);
+
+    return response;
   }
 
   // Redirect authenticated users away from auth pages
