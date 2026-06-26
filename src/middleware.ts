@@ -7,6 +7,10 @@ import {
   AUTH_ADMIN_COOKIE_NAME as ADMIN_COOKIE,
   AUTH_COOKIE_NAME as AUTH_COOKIE,
 } from "@/lib/auth-cookies";
+import {
+  isQaAdminEntryPath,
+  QA_ADMIN_COOKIE_NAME,
+} from "@/lib/qa-admin-access";
 
 const PUBLIC_PATHS = ["/", "/about", "/privacy", "/signin", "/signup", "/forgot-password"];
 
@@ -24,6 +28,11 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const isAuthenticated = req.cookies.has(AUTH_COOKIE);
   const isAdmin = req.cookies.has(ADMIN_COOKIE);
+  const hasQaAdminAccess = req.cookies.has(QA_ADMIN_COOKIE_NAME);
+
+  if (isQaAdminEntryPath(pathname)) {
+    return NextResponse.next();
+  }
 
   // Redirect authenticated users away from auth pages
   if (AUTH_ONLY_PATHS.some((path) => pathname === path)) {
@@ -33,8 +42,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Admin-only routes (temporary email-based access via cookie)
+  // Admin-only routes (QA secret URL or email-based super-admin cookie)
   if (isAdminRoute(pathname)) {
+    if (hasQaAdminAccess) {
+      return NextResponse.next();
+    }
     if (!isAuthenticated) {
       const signInUrl = new URL("/signin", req.url);
       signInUrl.searchParams.set("callbackUrl", pathname);
